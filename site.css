@@ -1,0 +1,50 @@
+/* B3 Commerce International — shared tokens. Layout: narrow reading column, course cards on the hub, sticky section nav on long pages. */
+:root {
+  --bg: #f6f3ec; --surface: #ffffff; --fg: #1b2b26; --muted: #5f6f69; --line: #d8e3dc;
+  --accent: #2f7d5b; --accent-ink: #ffffff; --warm: #e8694f; --tint: #eaf3ee;
+  --display: "Lexend", "Segoe UI", system-ui, sans-serif; --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141c19; --surface: #1d2823; --fg: #ecf1ee; --muted: #9fb0a8; --line: #2f3d37;
+  --accent: #5cc08f; --accent-ink: #0f1a15; --warm: #f08a70; --tint: #1e3a2d; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141c19; --surface: #1d2823; --fg: #ecf1ee; --muted: #9fb0a8; --line: #2f3d37;
+  --accent: #5cc08f; --accent-ink: #0f1a15; --warm: #f08a70; --tint: #1e3a2d; color-scheme: dark }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 56px; }
+.wrap { max-width: 760px; margin: 0 auto; }
+a { color: var(--accent); }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+.brand { font-family: var(--display); font-weight: 700; text-decoration: none; color: var(--fg); font-size: 1rem; }
+.brand span { color: var(--accent); }
+.eyebrow { font-family: var(--display); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.5rem, 4.5vw, 2.1rem); margin: 4px 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 1.3rem; margin: 36px 0 10px; text-wrap: balance; }
+h3 { font-family: var(--display); font-weight: 600; font-size: 1.05rem; margin: 22px 0 6px; }
+p { margin: 0 0 12px; max-width: 68ch; }
+.sub { color: var(--muted); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.card h2 { margin: 0; font-size: 1.1rem; }
+.card .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.btn { display: inline-block; border: 0; border-radius: 10px; padding: 10px 14px; font: 600 .9rem var(--display); cursor: pointer; background: var(--accent); color: var(--accent-ink); text-decoration: none; }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.tag { display: inline-block; border-radius: 999px; padding: 3px 10px; font: 600 .72rem var(--display); letter-spacing: .06em; text-transform: uppercase; background: var(--tint); color: var(--accent); }
+.tag.soon { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+.toc a { font: 500 .85rem var(--body); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; color: var(--fg); }
+.key { background: var(--tint); border-left: 4px solid var(--accent); border-radius: 8px; padding: 10px 14px; margin: 12px 0; }
+.key b { font-family: var(--display); }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+.tbl { overflow-x: auto; margin: 10px 0 16px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--display); font-weight: 600; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; }
+dt { font-family: var(--display); font-weight: 600; font-size: .9rem; }
+dd { margin: 0; font-size: .95rem; }
+@media (max-width: 520px) { dl { grid-template-columns: 1fr; gap: 2px; } dd { margin-bottom: 8px; } }
+.foot { margin-top: 40px; color: var(--muted); font-size: .85rem; }
+a:focus-visible, .btn:focus-visible { outline: 3px solid var(--warm); outline-offset: 2px; }
