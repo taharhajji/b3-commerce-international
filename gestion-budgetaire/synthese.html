@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Synthèse — Gestion budgétaire</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../site.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a class="brand" href="../index.html">B3 <span>Commerce International</span></a><a class="btn" href="quiz.html">Faire le quiz</a></nav>
+
+  <div class="eyebrow">Gestion budgétaire · David Ngonga (INSEEC Boostcamp) · module V</div>
+  <h1>Coûts partiels et prise de décision</h1>
+  <p class="sub">Trois méthodes, trois marges, un réflexe : on part du chiffre d'affaires, on retire ce qu'on sait imputer, et c'est la marge (pas le résultat) qui décide de garder ou d'abandonner un produit.</p>
+
+  <div class="toc">
+    <a href="#s1">1. Pourquoi les coûts partiels</a><a href="#s2">2. La grille des charges</a><a href="#s3">3. Coûts variables</a><a href="#s4">4. Coûts spécifiques</a><a href="#s5">5. Coûts directs</a><a href="#s6">Comparatif</a><a href="#reflexes">Réflexes d'examen</a>
+  </div>
+
+  <h2 id="s1">1. Pourquoi lâcher les coûts complets ?</h2>
+  <p>Les coûts complets ont trois défauts : l'<b>affectation discutable des charges indirectes</b> (l'unité d'œuvre passe encore, l'assiette de frais est arbitraire), des <b>charges supposées homogènes</b> comme si tout variait avec le volume, ce qui est faux, et un <b>horizon de long terme</b> : parfait pour fixer un prix, nul pour décider vite. Les coûts partiels servent aux <b>décisions à court terme</b> (sous-traiter, abandonner un produit, ajuster un prix), <b>neutralisent l'arbitraire</b> en n'imputant que ce qu'on sait répartir objectivement, et proposent une <b>nouvelle lecture des charges</b> : variables / fixes, et plus seulement directes / indirectes.</p>
+  <p>Objectif du module : passer de la profitabilité globale à celle de chaque produit ou catégorie, zoomer sur chaque produit, puis décider de développer ou d'abandonner un produit selon sa performance.</p>
+
+  <h2 id="s2">2. La grille des charges</h2>
+  <p>Chaque charge porte deux étiquettes : elle est <b>variable</b> (elle bouge avec l'activité) ou <b>fixe</b> (constante à ce niveau d'activité), et <b>directe</b> (rattachée sans ambiguïté à un produit) ou <b>indirecte</b> (commune à tous). Les quatre cases réunies forment le coût complet ; chaque méthode de coûts partiels revient à choisir quelles cases on impute aux produits.</p>
+  <div class="tbl"><table>
+    <tr><th></th><th>Variable</th><th>Fixe</th></tr>
+    <tr><td><b>Directe</b></td><td>Matières, commission par vente du produit A</td><td>Salaire du directeur de production du produit A</td></tr>
+    <tr><td><b>Indirecte</b></td><td>Énergie partagée</td><td>Loyer, direction générale, publicité commune</td></tr>
+  </table></div>
+  <p>Le nouvel outil est le <b>compte de résultat différentiel</b>. Avant, on additionnait tous les coûts pour obtenir un coût de revient par produit et un résultat par produit, trompeur. Maintenant, on part du chiffre d'affaires, on retire seulement les coûts qu'on sait imputer pour obtenir une <b>marge par produit</b>, et les coûts non imputables sont retirés en bloc pour donner un <b>résultat global</b>.</p>
+
+  <h2 id="s3">3. Méthode 1 : les coûts variables</h2>
+  <p>On n'impute que ce qui bouge avec l'activité. Chiffre d'affaires − coûts variables = <b>marge sur coûts variables (MCV)</b> par produit ; MCV totale − coûts fixes (en bloc) = résultat global.</p>
+  <div class="key"><b>Règle d'or.</b> MCV &gt; 0 : on garde le produit, il aide à payer les charges fixes. MCV ≤ 0 : on l'abandonne à court terme. Limites : évaluer les charges variables indirectes demande de l'expertise, et on n'a plus de résultat par produit, seulement global.</div>
+  <h3>Exemple CASSIS : faut-il jeter la chaise B ?</h3>
+  <p>600 chaises A à 200 € et 750 chaises B à 150 € ; coûts de revient 100 000 et 120 500 €. En coûts complets, A dégage +20 000 € et B −8 000 €, résultat +12 000 € : « supprimons B ! ». Piège : avec les coûts variables (60 000 pour A, 90 000 pour B, charges fixes 70 500 €), la MCV de B est de <b>+22 500 €</b> (A : 60 000). Sans B, la seule marge de A (60 000) ne couvre pas 70 500 € de charges fixes.</p>
+  <h3>Cas BASALT : trois destinations, une fausse coupable</h3>
+  <p>Séjours en Hongrie, Russie et République tchèque, charges fixes globales de 129 600 €. Avec les charges fixes réparties au prorata (96 € par séjour), la République tchèque ressort à −11 700 €. En marge sur coûts variables : Hongrie +34 500 €, Russie +121 800 €, République tchèque <b>+31 500 €</b>. Verdict : on garde la République tchèque, son déficit venait d'une répartition contestable des charges fixes. Résultat global inchangé : 58 200 €.</p>
+
+  <h2 id="s4">4. Méthode 2 : les coûts spécifiques</h2>
+  <p>Coûts variables + coûts fixes directs = coût spécifique. CA − coûts variables = MCV ; MCV − coûts fixes directs = <b>marge sur coûts spécifiques (MCS)</b> par produit ; MCS totale − coûts fixes indirects (en bloc) = résultat global. Une charge fixe directe, c'est le directeur de production du produit A ; une charge fixe indirecte, c'est le DG ou le loyer.</p>
+  <div class="key"><b>Règle d'or.</b> La décision se prend sur la MCS. MCS &lt; 0 : restructurer (réduire les charges fixes directes) ou abandonner, car les charges fixes directes disparaissent avec le produit. Le résultat global reste le même qu'avec les autres méthodes (12 000 € chez COMM1) : seule la ventilation change.</div>
+  <h3>Cas DELCOURT : la basket qui coûte cher</h3>
+  <div class="tbl"><table>
+    <tr><th></th><th>ALBER (5 500 paires à 160 €)</th><th>MARANT (8 000 paires à 90 €)</th><th>Total</th></tr>
+    <tr><td>Chiffre d'affaires</td><td class="num">880 000</td><td class="num">720 000</td><td class="num">1 600 000</td></tr>
+    <tr><td>− Coûts variables</td><td class="num">605 000</td><td class="num">372 000</td><td class="num">977 000</td></tr>
+    <tr><td>= MCV</td><td class="num">275 000</td><td class="num">348 000</td><td class="num">623 000</td></tr>
+    <tr><td>− Charges fixes directes</td><td class="num">315 550</td><td class="num">230 000</td><td class="num">545 550</td></tr>
+    <tr><td>= MCS</td><td class="num"><b>−40 550</b></td><td class="num">+118 000</td><td class="num">77 450</td></tr>
+    <tr><td>− Charges fixes communes</td><td></td><td></td><td class="num">45 700</td></tr>
+    <tr><td>Résultat global</td><td></td><td></td><td class="num">+31 750</td></tr>
+  </table></div>
+  <p>L'entreprise gagne 31 750 € et les deux modèles ont une MCV positive, mais ALBER a une MCS négative : il faut <b>restructurer ALBER</b> (réduire ses charges fixes directes) ou l'abandonner pour améliorer le résultat.</p>
+
+  <h2 id="s5">5. Méthode 3 : les coûts directs</h2>
+  <p>On impute tout ce qui est direct, variable ou fixe, et rien d'indirect : c'est l'autre sens de lecture de la grille. CA − coûts directs = <b>marge sur coûts directs (MCD)</b> par produit ; MCD totale − coûts indirects (variables et fixes, en bloc) = résultat global. Exemple BAEGA (montres) : montre A 120 000 − 90 000 = +30 000 ; montre B 112 500 − 87 500 = +25 000 ; total 55 000 − 43 000 de coûts indirects = +12 000 €.</p>
+  <div class="key"><b>Règle d'or.</b> MCD &gt; 0 pour les deux montres : on garde les deux. MCD &lt; 0 : supprimer le produit ou redéployer ses coûts directs. Méthode idéale quand les charges indirectes pèsent lourd et qu'on ne sait pas les répartir.</div>
+
+  <h2 id="s6">Les trois méthodes en un coup d'œil</h2>
+  <div class="tbl"><table>
+    <tr><th></th><th>1. Coûts variables</th><th>2. Coûts spécifiques</th><th>3. Coûts directs</th></tr>
+    <tr><td>On impute…</td><td>Coûts variables</td><td>CV + CF directes</td><td>CV directes + CF directes</td></tr>
+    <tr><td>La marge qui décide</td><td>MCV</td><td>MCS</td><td>MCD</td></tr>
+    <tr><td>Quand l'utiliser ?</td><td>Beaucoup de CF indirectes impossibles à répartir</td><td>On sait identifier des CF directes par produit</td><td>Les charges indirectes pèsent lourd</td></tr>
+  </table></div>
+  <p>Pas de recette automatique : on choisit selon la structure des charges et la capacité du contrôle de gestion à les répartir objectivement.</p>
+
+  <h2 id="reflexes">Les réflexes qui sauvent en examen</h2>
+  <p><b>Le résultat global ne change jamais.</b> Coûts complets, variables, spécifiques, directs : même total (12 000 € chez CASSIS, COMM1 et BAEGA), seule la ventilation change. <b>Une marge positive = on garde</b> : un produit « déficitaire » en coûts complets peut être un bon contributeur aux charges fixes, ne le supprime pas trop vite. <b>Court terme = coûts partiels</b> (sous-traiter, abandonner, ajuster un prix) ; fixer un prix de vente qui couvre tout = coûts complets. <b>Lis les mots du texte</b> : « coût de revient » → coûts complets ; « charges fixes globales, non imputables, communes » → indirectes ; « charges fixes de production du modèle X » → directes.</p>
+  <p>Module suivant annoncé : seuil de rentabilité et risque d'exploitation.</p>
+
+  <p style="margin-top:28px"><a class="btn" href="quiz.html">Tester ses connaissances : le quiz</a></p>
+  <p class="foot">Synthèse rédigée à partir de la fiche « Coûts partiels et prise de décision » du cours de David Ngonga (INSEEC Boostcamp), usage réservé aux étudiants du cours.</p>
+</div>
+</body>
+</html>
