@@ -5,81 +5,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Quiz — Stratégie d'entreprise</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../site.css">
 <style>
-/* Layout: one focused card per question, progress rail on top, theme chips under the title; feels like a study app, not a form. */
-:root {
-  --bg: #f6f3ec; --surface: #ffffff; --fg: #1b2b26; --muted: #5f6f69; --line: #d8e3dc;
-  --accent: #2f7d5b; --accent-ink: #ffffff; --warm: #e8694f; --ok-bg: #e4f2ea; --ok-fg: #1f5c41; --ko-bg: #fbe6e1; --ko-fg: #9b3a25;
-  --display: "Lexend", "Segoe UI", system-ui, sans-serif; --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-}
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #141c19; --surface: #1d2823; --fg: #ecf1ee; --muted: #9fb0a8; --line: #2f3d37;
-  --accent: #5cc08f; --accent-ink: #0f1a15; --warm: #f08a70; --ok-bg: #1e3a2d; --ok-fg: #a8e6c4; --ko-bg: #46241c; --ko-fg: #ffb8a4; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #141c19; --surface: #1d2823; --fg: #ecf1ee; --muted: #9fb0a8; --line: #2f3d37;
-  --accent: #5cc08f; --accent-ink: #0f1a15; --warm: #f08a70; --ok-bg: #1e3a2d; --ok-fg: #a8e6c4; --ko-bg: #46241c; --ko-fg: #ffb8a4; color-scheme: dark }
-html,body{margin:0} * { box-sizing: border-box; } body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.5; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
-.wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 18px; }
-h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.4rem, 4vw, 1.9rem); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
-.sub { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
-.eyebrow { font-family: var(--display); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+/* Quiz layout: one card per question, XP bar and streak flame on top, modes as big tiles. */
+.wrap { display: grid; gap: 18px; max-width: 720px; }
+.hud { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; }
+.hud .lvl { font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.hud .xpbar { flex: 1; min-width: 140px; height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.hud .xpbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--warm)); width: 0; transition: width .4s; }
+.hud .xp { font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; font: 600 .78rem var(--display); background: var(--tint); color: var(--accent); }
+.badge.locked { background: transparent; color: var(--muted); opacity: .7; }
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 14px; }
+.mode { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; cursor: pointer; color: var(--fg); font-family: var(--body); display: grid; gap: 4px; }
+.mode:hover, .mode:focus-visible { border-color: var(--accent); }
+.mode b { font-family: var(--display); font-size: 1rem; }
+.mode small { color: var(--muted); font-size: .82rem; }
+.mode .ic { font-size: 1.4rem; line-height: 1; }
+.mastery { display: grid; gap: 8px; margin-top: 10px; }
+.mrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font-size: .88rem; }
+.mrow .bar { grid-column: 1 / -1; height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.mrow .bar i { display: block; height: 100%; background: var(--accent); }
+.mrow .pct { color: var(--muted); font-variant-numeric: tabular-nums; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { border: 1px solid var(--line); background: transparent; color: var(--fg); border-radius: 999px; padding: 6px 12px; font: 500 .85rem var(--body); cursor: pointer; }
 .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.chip:focus-visible, .btn:focus-visible, .opt:focus-visible { outline: 3px solid var(--warm); outline-offset: 2px; }
-.modes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-.btn { border: 0; border-radius: 10px; padding: 12px 18px; font: 600 .95rem var(--display); cursor: pointer; background: var(--accent); color: var(--accent-ink); }
-.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
 .rail { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
 .rail > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
-.meta { display: flex; justify-content: space-between; gap: 12px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+.meta { display: flex; justify-content: space-between; gap: 12px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; flex-wrap: wrap; align-items: center; }
+.streak { font-family: var(--display); font-weight: 700; color: var(--warm); }
+.streak.hot { animation: pop .3s; }
+.timer { font-family: var(--display); font-weight: 700; color: var(--accent); min-width: 3ch; text-align: right; }
+.timer.low { color: var(--warm); animation: pop .4s infinite alternate; }
+@keyframes pop { from { transform: scale(1); } to { transform: scale(1.18); } }
 .qtext { font-family: var(--display); font-weight: 600; font-size: 1.15rem; margin: 8px 0 16px; text-wrap: balance; }
 .opts { display: grid; gap: 10px; }
-.opt { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; text-align: left; width: 100%; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 400 .98rem var(--body); cursor: pointer; line-height: 1.45; }
-.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; text-align: left; width: 100%; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 400 .98rem var(--body); cursor: pointer; line-height: 1.45; transition: transform .12s; }
+.opt:hover:not(:disabled) { border-color: var(--accent); transform: translateX(3px); }
 .opt b { font-family: var(--display); color: var(--muted); }
 .opt.ok { background: var(--ok-bg); border-color: var(--ok-fg); color: var(--ok-fg); } .opt.ok b { color: var(--ok-fg); }
-.opt.ko { background: var(--ko-bg); border-color: var(--ko-fg); color: var(--ko-fg); } .opt.ko b { color: var(--ko-fg); }
+.opt.ko { background: var(--ko-bg); border-color: var(--ko-fg); color: var(--ko-fg); animation: shake .35s; } .opt.ko b { color: var(--ko-fg); }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .opt:disabled { cursor: default; }
 .feedback { margin-top: 14px; border-radius: 10px; padding: 12px 14px; font-size: .95rem; }
 .feedback.ok { background: var(--ok-bg); color: var(--ok-fg); } .feedback.ko { background: var(--ko-bg); color: var(--ko-fg); }
 .feedback .slide { display: inline-block; margin-top: 6px; font: 600 .78rem var(--display); letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+.feedback .pts { float: right; font: 700 .95rem var(--display); }
 .actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
 .score { text-align: center; }
 .big { font-family: var(--display); font-size: clamp(2.6rem, 10vw, 4rem); font-weight: 700; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
 .verdict { font-size: 1.05rem; margin: 10px 0 4px; }
+.newbadge { display: inline-block; margin: 8px 4px 0; padding: 8px 14px; border-radius: 999px; background: var(--warm); color: #fff; font: 700 .85rem var(--display); animation: pop .5s 3 alternate; }
 .review { display: grid; gap: 8px; margin-top: 16px; text-align: left; }
 .review details { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
 .review summary { cursor: pointer; font-weight: 500; }
 .review summary.bad { color: var(--ko-fg); } .review summary.good { color: var(--ok-fg); }
 .review p { margin: 8px 0 0; font-size: .92rem; color: var(--muted); }
-.best { font-size: .85rem; color: var(--muted); }
-@media (prefers-reduced-motion: reduce) { .rail > i { transition: none; } }
+/* Flashcards */
+.fc { perspective: 1200px; min-height: 220px; cursor: pointer; }
+.fc .inner { position: relative; width: 100%; min-height: 220px; transition: transform .5s; transform-style: preserve-3d; }
+.fc.flipped .inner { transform: rotateY(180deg); }
+.fc .face { position: absolute; inset: 0; backface-visibility: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; place-content: center; text-align: center; gap: 8px; }
+.fc .face.back { transform: rotateY(180deg); background: var(--tint); }
+.fc .face .q { font-family: var(--display); font-weight: 600; font-size: 1.1rem; text-wrap: balance; }
+.fc .face .hint { font-size: .8rem; color: var(--muted); }
+.fc .face .a { font-family: var(--display); font-weight: 700; color: var(--accent); }
+.fc .face .e { font-size: .92rem; color: var(--muted); }
+canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 9; }
+@media (prefers-reduced-motion: reduce) { .rail > i, .fc .inner, .hud .xpbar i { transition: none; } .opt.ko, .streak.hot, .timer.low, .newbadge { animation: none; } }
 </style>
 </head>
 <body>
+<canvas class="confetti" id="confetti" hidden></canvas>
 <div class="wrap">
-  <nav class="top" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px"><a class="brand" href="../index.html" style="font-family:var(--display);font-weight:700;text-decoration:none;color:var(--fg)">B3 <span style="color:var(--accent)">Commerce International</span></a><a href="synthese.html" style="font:500 .9rem var(--body)">Relire la synthèse</a></nav>
+  <nav class="top"><a class="brand" href="../index.html">B3 <span>Commerce International</span></a><a href="synthese.html">Relire la synthèse</a></nav>
   <header>
     <div class="eyebrow">INSEEC · Stratégie d'entreprise · révision</div>
     <h1>Quiz Stratégie d'entreprise</h1>
-    <p class="sub">72 questions tirées uniquement des supports et vidéos du cours d'A.-L. Boncori. Une bonne réponse par question, correction immédiate avec la partie du cours de référence.</p>
+    <p class="sub">72 questions tirées uniquement des supports et vidéos du cours d'A.-L. Boncori. Une bonne réponse par question, correction immédiate avec la partie du cours de référence. Gagne des XP, enchaîne les séries, débloque les badges.</p>
   </header>
 
+  <div class="hud">
+    <span class="lvl" id="lvl">Niveau 1</span>
+    <div class="xpbar"><i id="xpfill"></i></div>
+    <span class="xp" id="xptxt">0 XP</span>
+  </div>
+
   <section class="panel" id="home">
-    <div class="eyebrow">Thèmes</div>
+    <div class="eyebrow">Choisis ton mode</div>
+    <div class="modes">
+      <button class="mode" id="startAll"><span class="ic">📚</span><b>Entraînement</b><small>Toutes les questions des thèmes cochés, sans pression.</small></button>
+      <button class="mode" id="startExam"><span class="ic">🎓</span><b>Examen blanc</b><small>20 questions au hasard, comme le jour J.</small></button>
+      <button class="mode" id="startChrono"><span class="ic">⚡</span><b>Chrono</b><small>15 questions, 20 s chacune, bonus de vitesse.</small></button>
+      <button class="mode" id="startCards"><span class="ic">🃏</span><b>Flashcards</b><small>Retourne la carte, trie « je savais » / « à revoir ».</small></button>
+    </div>
+    <div class="eyebrow" style="margin-top:20px">Thèmes</div>
     <p class="sub" style="margin-bottom:10px">Tout sélectionné par défaut. Décoche pour cibler une partie du cours.</p>
     <div class="chips" id="chips"></div>
-    <div class="modes">
-      <button class="btn" id="startAll">Lancer toutes les questions</button>
-      <button class="btn ghost" id="startExam">Examen blanc : 20 au hasard</button>
-    </div>
-    <p class="best" id="best" hidden></p>
+    <div class="eyebrow" style="margin-top:20px">Ta maîtrise par thème</div>
+    <div class="mastery" id="mastery"></div>
+    <div class="eyebrow" style="margin-top:20px">Badges</div>
+    <div class="badges" id="badges"></div>
   </section>
 
   <section class="panel" id="quiz" hidden>
-    <div class="meta"><span id="counter"></span><span id="theme"></span><span id="live"></span></div>
+    <div class="meta"><span id="counter"></span><span id="theme"></span><span class="streak" id="streak"></span><span class="timer" id="timer" hidden></span></div>
     <div class="rail" style="margin:10px 0 6px"><i id="bar"></i></div>
     <p class="qtext" id="qtext"></p>
     <div class="opts" id="opts"></div>
@@ -90,25 +121,55 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.4rem, 4vw
     </div>
   </section>
 
+  <section class="panel" id="cards" hidden>
+    <div class="meta"><span id="ccounter"></span><span id="ctheme"></span><span id="cleft"></span></div>
+    <div class="rail" style="margin:10px 0 14px"><i id="cbar"></i></div>
+    <div class="fc" id="fc"><div class="inner"><div class="face front"><div class="q" id="cq"></div><div class="hint">Clique pour retourner</div></div><div class="face back"><div class="a" id="ca"></div><div class="e" id="ce"></div></div></div></div>
+    <div class="actions">
+      <button class="btn ghost" id="cquit">Arrêter</button>
+      <span><button class="btn ghost" id="cagain">À revoir</button> <button class="btn" id="cknew">Je savais</button></span>
+    </div>
+  </section>
+
   <section class="panel score" id="result" hidden>
     <div class="eyebrow">Résultat</div>
     <div class="big" id="scoreBig"></div>
     <p class="verdict" id="verdict"></p>
     <p class="sub" id="scoreSub"></p>
-    <div class="modes" style="justify-content:center">
+    <div id="newbadges"></div>
+    <div class="modes" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
       <button class="btn" id="retryWrong" hidden>Rejouer mes erreurs</button>
-      <button class="btn ghost" id="backHome">Retour aux thèmes</button>
+      <button class="btn ghost" id="backHome">Retour aux modes</button>
     </div>
     <div class="review" id="review"></div>
   </section>
 </div>
 <script>
+const COURSE = "strategie-entreprise";
 const BANK = [{"t":"Définir la stratégie","q":"D'où vient le mot « stratégie » ?","o":["Du latin strata, la route","Du grec stratos (armée) et agein (conduire)","De l'anglais strategy, années 1960","Du grec polis, la cité"],"a":1,"e":"Le stratège est celui qui conduit l'armée : concept militaire passé à l'entreprise dans les années 1960.","s":"Fiche 1"},{"t":"Définir la stratégie","q":"Selon Porter, à quoi reconnaît-on concrètement un avantage concurrentiel ?","o":["À la part de marché la plus élevée","Au chiffre d'affaires le plus élevé","À une rentabilité supérieure à la moyenne du secteur","Au plus grand nombre de salariés"],"a":2,"e":"Exemple du cours : Samsung leader en volume, mais Apple a l'avantage concurrentiel grâce à sa marge.","s":"Fiche 1 · Partie IV"},{"t":"Définir la stratégie","q":"Quel niveau de stratégie répond à la question « dans quels domaines d'activité être présent ? »","o":["La stratégie business","La stratégie corporate","Les décisions opérationnelles","La stratégie fonctionnelle"],"a":1,"e":"La corporate strategy choisit les DAS (spécialisation, diversification, recentrage) et vient avant la business strategy.","s":"Partie IV"},{"t":"Définir la stratégie","q":"Qu'est-ce qu'un DAS ?","o":["Un département administratif et social","Un sous-ensemble d'activités partageant mêmes clients, concurrents, technologies et FCS","Un segment de clientèle marketing","Une filiale à l'étranger"],"a":1,"e":"On définit une stratégie business par DAS ; le découpage s'appelle segmentation stratégique.","s":"Fiche 1"},{"t":"Définir la stratégie","q":"Les 5 P de Mintzberg sont : Plan, Pattern, Position, Perspective et…","o":["Profit","Ploy (manœuvre)","Process","Product"],"a":1,"e":"Pour Mintzberg, la stratégie n'est pas qu'un plan écrit : c'est aussi ce que l'entreprise fait réellement.","s":"Fiche 1"},{"t":"Définir la stratégie","q":"Une stratégie qui naît du terrain par essais-erreurs, de bas en haut, est dite…","o":["Délibérée","Émergente","Corporate","Générique"],"a":1,"e":"Stratégie émergente (Mintzberg), par opposition à la stratégie délibérée planifiée par la direction.","s":"Fiche 1 · Partie IV"},{"t":"Définir la stratégie","q":"Les trois modes de croissance cités au niveau corporate sont :","o":["Build, buy, borrow","Make, sell, rent","Plan, do, check","Coûts, différenciation, focalisation"],"a":0,"e":"Croissance interne (build), acquisition (buy), alliance (borrow).","s":"Fiche 1 · Partie IV"},{"t":"Définir la stratégie","q":"Quelle phrase résume l'idée centrale qui justifie de commencer par le diagnostic externe ?","o":["L'entreprise est hors sol","L'entreprise n'est pas hors sol","Le client a toujours raison","La stratégie est un plan"],"a":1,"e":"L'entreprise s'insère dans une cité (la polis) : tissu social, politique, économique et culturel.","s":"Partie III"},{"t":"Définir la stratégie","q":"Le modèle Structure → Comportement → Performance appartient à quelle école ?","o":["L'approche par les ressources","L'approche par l'environnement (économie industrielle)","L'école émergente","L'école des capacités dynamiques"],"a":1,"e":"Héritage de l'économie industrielle américaine (Industrial Organization), exemple de la Standard Oil.","s":"Partie III"},{"t":"Définir la stratégie","q":"Que illustre le cas de la Standard Oil de Rockefeller ?","o":["La stratégie émergente","Économies d'échelle, intégration verticale et rentes","La focalisation","L'horloge stratégique"],"a":1,"e":"Raffinerie de Cleveland, 1865 : économies d'échelle, menace d'intégration verticale, rentes différentielles et de monopole.","s":"Partie III"},{"t":"Diagnostic externe","q":"Dans quel ordre se fait le diagnostic externe ?","o":["5 forces puis PESTEL","PESTEL puis 5 forces de Porter","SWOT puis PESTEL","VRIN puis 5 forces"],"a":1,"e":"D'abord le macro-environnement (PESTEL), puis l'analyse concurrentielle et l'attractivité du secteur.","s":"Partie III"},{"t":"Diagnostic externe","q":"Le PESTEL débouche sur :","o":["Les forces et faiblesses","Les variables pivots, les scénarios, les opportunités et menaces","La marge par produit","Les stratégies génériques"],"a":1,"e":"PESTEL : comment et pourquoi ? Variables pivots → scénarios d'évolution → opportunités et menaces.","s":"Partie III"},{"t":"Diagnostic externe","q":"Le taux directeur et le pouvoir d'achat relèvent de quelle lettre du PESTEL ?","o":["P","E (économique)","S","L"],"a":1,"e":"Critères économiques : cycles, croissance du PIB, inflation, taux d'intérêt, chômage, pouvoir d'achat.","s":"Partie III"},{"t":"Diagnostic externe","q":"La politique de propriété intellectuelle et la protection des brevets relèvent de :","o":["Technologique","Légal","Politique","Écologique"],"a":0,"e":"Les slides classent brevets et propriété intellectuelle dans les critères technologiques, avec R&D et ruptures.","s":"Partie III"},{"t":"Diagnostic externe","q":"Le protectionnisme et les alliances commerciales relèvent de :","o":["Économique","Politique","Légal","Socioculturel"],"a":1,"e":"Critères politiques : stabilité, protectionnisme, (dé)régulations, politique monétaire, commerce extérieur, alliances.","s":"Partie III"},{"t":"Diagnostic externe","q":"Selon la prof, quelle variable est la plus fiable pour prévoir ?","o":["La technologie","La démographie","Le taux d'intérêt","La mode"],"a":1,"e":"Elle bouge lentement ; exemple OMS : 2 milliards de 60 ans et plus en 2050.","s":"Fiche 2"},{"t":"Diagnostic externe","q":"Quelles sont les trois dimensions de la typologie des industries selon Porter ?","o":["Prix, volume, marge","Degré de maturité, étendue du champ concurrentiel, degré de concentration","Offre, demande, État","Interne, externe, hybride"],"a":1,"e":"Émergente à déclin ; globale, multidomestique ou locale ; concentrée ou fragmentée.","s":"Partie III"},{"t":"Diagnostic externe","q":"Lequel n'est PAS un symptôme de maturité d'un secteur ?","o":["Saturation du marché","Surcapacité de production","Forte croissance de la demande","Inélasticité de la demande"],"a":2,"e":"Les symptômes : saturation, inélasticité, surcapacité, substitution, maturité technologique, sophistication du consommateur.","s":"Partie III"},{"t":"Diagnostic externe","q":"Quelle force est au centre du modèle de Porter ?","o":["La menace des substituts","La rivalité interne","Le pouvoir des clients","L'État"],"a":1,"e":"La rivalité entre concurrents établis est la force centrale ; on commence toujours par elle.","s":"Partie III"},{"t":"Diagnostic externe","q":"Quelle est la « sixième force » ajoutée au modèle ?","o":["Les syndicats","Les pouvoirs publics (l'État)","Les médias","Les actionnaires"],"a":1,"e":"Ils agissent via le protectionnisme, le pouvoir de régulation et leur place comme client/fournisseur.","s":"Partie III"},{"t":"Diagnostic externe","q":"Un secteur en oligopole ou duopole a une rivalité interne…","o":["Faible","Très élevée","Nulle","Impossible à évaluer"],"a":1,"e":"Secteur concentré = rivalité forte ; fragmenté = plus faible. Exemple : Android/iOS, note 5/5.","s":"Partie III"},{"t":"Diagnostic externe","q":"Au stade de l'introduction du cycle de vie, la rivalité interne est :","o":["Très forte","Faible, puis elle croît jusqu'à la maturité","Stable","Maximale"],"a":1,"e":"La rivalité est un continuum : faible en introduction, extrêmement élevée à maturité.","s":"Partie III"},{"t":"Diagnostic externe","q":"Des sources de différenciation possibles entre concurrents…","o":["Augmentent la rivalité","Abaissent la rivalité interne","Sont sans effet","Créent une guerre des prix"],"a":1,"e":"Sans différenciation possible, on se tourne vers une guerre des prix et une réduction massive des coûts.","s":"Partie III"},{"t":"Diagnostic externe","q":"Des barrières à la sortie élevées sont le signe :","o":["D'un secteur attractif","D'une rivalité forte : les entreprises restent verrouillées et se battent","D'une menace d'entrants faible","D'un pouvoir des clients faible"],"a":1,"e":"Le verrouillage présage la mauvaise santé ou le caractère non attractif de l'industrie.","s":"Partie III"},{"t":"Diagnostic externe","q":"L'eau minérale par rapport aux sodas illustre :","o":["Un nouvel entrant","Un produit de substitution","Un fournisseur","Un client"],"a":1,"e":"Les substituts répondent au même besoin autrement ; critères : substituabilité, élasticité croisée, innovation.","s":"Partie III · Fiche 2"},{"t":"Diagnostic externe","q":"Lequel est un critère du pouvoir de négociation des fournisseurs et clients ?","o":["Les barrières à la sortie","Les coûts de transfert","La maturité technologique","La démographie"],"a":1,"e":"Concentration, savoir-faire et qualité, quantités commandées, coûts de transfert, possibilités d'intégration amont/aval.","s":"Partie III"},{"t":"Diagnostic externe","q":"Des barrières à l'entrée élevées rendent la menace des nouveaux entrants :","o":["Forte","Faible","Moyenne","Inchangée"],"a":1,"e":"Économies d'échelle, capitaux, image de marque, brevets, effets d'apprentissage, distribution, différenciation.","s":"Partie III"},{"t":"Diagnostic externe","q":"Dans l'exemple du train de passagers en France, la menace des substituts est jugée :","o":["Faible","Très forte (avion, automobile, car)","Nulle","Moyenne"],"a":1,"e":"Rivalité faible (monopole SNCF), entrants forte (Deutsche Bahn), substituts très forte, État fort.","s":"Partie III"},{"t":"Diagnostic externe","q":"Plus les forces concurrentielles sont élevées…","o":["Plus le secteur est attractif","Moins le secteur est attractif","Plus les marges sont élevées","Plus les FCS sont nombreux"],"a":1,"e":"Première conclusion du modèle : l'attractivité du secteur.","s":"Partie III"},{"t":"Diagnostic externe","q":"Dans l'hexagone sectoriel, une petite surface signifie :","o":["Un secteur peu attractif","Un secteur attractif","Une forte rivalité","Un oligopole"],"a":1,"e":"Six branches notées de 0 à 10 ; grande toile d'araignée = secteur peu attractif.","s":"Partie III"},{"t":"Diagnostic externe","q":"Qui sont les trois acteurs de l'oligopole des consoles de jeux vidéo cité en cours ?","o":["Apple, Google, Microsoft","Sony, Nintendo, Microsoft","Sega, Atari, Sony","Tencent, Sony, Nintendo"],"a":1,"e":"Rivalité notée 7 à 9 sur 10. Deux types de clients : distributeurs et consommateur final.","s":"Partie III"},{"t":"Diagnostic externe","q":"Les facteurs clés de succès (FCS) sont :","o":["Propres à chaque entreprise","Imposés par la structure du secteur à toutes les entreprises","Choisis par le dirigeant","Les forces de l'entreprise"],"a":1,"e":"Ils viennent contrecarrer les forces et s'imposent à tous les concurrents du secteur.","s":"Partie III"},{"t":"Diagnostic externe","q":"Quel FCS permet de contrebalancer la sixième force (l'État) ?","o":["L'intégration verticale","Le lobbying","La maîtrise des coûts","L'image de marque"],"a":1,"e":"Septième catégorie de FCS : le lobbying.","s":"Partie III"},{"t":"Diagnostic externe","q":"Quel FCS abaisse surtout le pouvoir de négociation des fournisseurs et des clients ?","o":["L'intégration verticale","L'innovation","La puissance financière","Le lobbying"],"a":0,"e":"Développer des activités adjacentes en amont ou en aval du secteur.","s":"Partie III"},{"t":"Diagnostic externe","q":"Combien de catégories majeures de FCS le cours distingue-t-il ?","o":["3","5","7","10"],"a":2,"e":"Coûts, image de marque, technique et innovation, intégration verticale, distribution et fournisseurs, puissance financière, lobbying.","s":"Partie III"},{"t":"Stratégies business","q":"Quelles sont les trois stratégies génériques de Porter ?","o":["Croissance, maintien, retrait","Domination par les coûts, différenciation, focalisation","Spécialisation, diversification, recentrage","Build, buy, borrow"],"a":1,"e":"La focalisation (concentration) a deux variantes : par les coûts ou par la différenciation.","s":"Partie IV"},{"t":"Stratégies business","q":"Spécialisation, diversification et recentrage sont des stratégies…","o":["Business","Corporate","Fonctionnelles","Émergentes"],"a":1,"e":"Ce sont les choix de DAS au niveau de la stratégie d'ensemble.","s":"Partie IV"},{"t":"Stratégies business","q":"Une entreprise sans choix clair entre coûts et différenciation est dite…","o":["Hybride","Stuck in the middle (enlisée dans la voie médiane)","Focalisée","Standard"],"a":1,"e":"Sur la courbe de Porter, la voie médiane a la rentabilité la plus faible.","s":"Partie IV"},{"t":"Stratégies business","q":"Qu'est-ce que l'offre de référence ?","o":["L'offre la plus chère du marché","L'offre que la majorité des consommateurs s'attend à se voir proposer à un moment donné","L'offre du leader","L'offre low cost"],"a":1,"e":"Le cœur du marché, l'offre moyenne ou standard (Strategor).","s":"Partie IV"},{"t":"Stratégies business","q":"La domination par les coûts est une stratégie de…","o":["Niche","Volume","Prestige","Différenciation"],"a":1,"e":"Avantage simple : obtenir les coûts et les prix les plus bas à qualité comparable.","s":"Partie IV"},{"t":"Stratégies business","q":"Lequel n'est PAS un moyen cité de domination par les coûts ?","o":["Effets d'expérience, d'échelle et d'envergure","Intégration verticale","Standardisation des process","Design original et image de marque"],"a":3,"e":"Design et image de marque sont des leviers de sophistication, pas de domination par les coûts.","s":"Partie IV"},{"t":"Stratégies business","q":"Que montre la courbe d'expérience ?","o":["Le coût unitaire augmente avec le volume","Le coût unitaire baisse avec le total d'unités produites","Le prix suit la demande","La marge est constante"],"a":1,"e":"Exemple cité : l'Airbus A350.","s":"Partie IV"},{"t":"Stratégies business","q":"La stratégie d'épuration consiste à :","o":["Proposer plus de valeur à un prix supérieur","Proposer pour un prix réduit une offre de valeur perçue inférieure","Se concentrer sur une niche","Copier l'offre standard"],"a":1,"e":"Différenciation par le bas ; exemples : Logan Renault, Duster Dacia.","s":"Partie IV"},{"t":"Stratégies business","q":"Quelle est la limite principale de l'épuration ?","o":["Une sophistication non perçue","Un écart de prix trop faible par rapport aux stratégies de domination par les coûts","Des actifs trop spécialisés","Une cible trop large"],"a":1,"e":"Sa réussite repose sur une forte sensibilité prix des clients et une réflexion sur tout le processus de production.","s":"Partie IV"},{"t":"Stratégies business","q":"La sophistication s'appuie sur :","o":["Volume et standardisation","Image de marque, design, technologie, distribution, service","Guerre des prix","Réduction des coûts"],"a":1,"e":"Limites : sophistication non perçue ou difficile à protéger.","s":"Partie IV"},{"t":"Stratégies business","q":"Sur l'horloge stratégique, l'épuration (low cost) se situe :","o":["Prix élevé, valeur élevée","Prix faible, valeur perçue faible","Prix faible, valeur élevée","Prix élevé, valeur faible"],"a":1,"e":"Les autres positions : offre standard, hybride, sophistication sans surprix, sophistication avec surprix.","s":"Partie IV"},{"t":"Stratégies business","q":"La stratégie hybride combine :","o":["Coût élevé et différenciation faible","Coût faible et différenciation élevée","Niche et volume","Épuration et focalisation"],"a":1,"e":"Exemple posé en question dans le cours : Ikea.","s":"Partie IV"},{"t":"Stratégies business","q":"Coût d'obtention élevé et faible différenciation correspond à une stratégie :","o":["Hybride","Non viable","De niche","De volume"],"a":1,"e":"Matrice de Brulhart, Favoreu & Gherra.","s":"Partie IV"},{"t":"Stratégies business","q":"Sur quoi repose la réussite d'une stratégie de focalisation ?","o":["Un marché le plus large possible","Une restriction délibérée du marché et des actifs hautement spécialisés","Des prix les plus bas","Une offre standard"],"a":1,"e":"Offre très différenciée pour une clientèle très réduite, pour ne pas attirer de concurrents.","s":"Partie IV"},{"t":"Stratégies business","q":"Cible étroite + avantage lié au coût ou à la différenciation =","o":["Domination par les coûts","Concentration (focalisation)","Sophistication","Hybride"],"a":1,"e":"Front large = domination par les coûts ou différenciation ; front étroit = concentration.","s":"Partie IV"},{"t":"Diagnostic interne","q":"Que signifie VRIN ?","o":["Volume, Rentabilité, Innovation, Niche","Valeur, Rareté, Inimitabilité, Non-substituabilité","Vision, Ressources, Intégration, Négociation","Valeur, Risque, Image, Notoriété"],"a":1,"e":"Méthode de diagnostic des ressources et compétences, Barney 1991.","s":"Partie VI"},{"t":"Diagnostic interne","q":"Une ressource qui a de la valeur mais n'est ni rare, ni inimitable, ni non substituable donne :","o":["Un avantage durable","Une parité concurrentielle","Un désavantage","Un avantage temporaire"],"a":1,"e":"Aucun critère = désavantage ; valeur seule = parité ; V+R ou V+I = temporaire ; les quatre = durable.","s":"Partie VI"},{"t":"Diagnostic interne","q":"Quelle différence entre ressources et compétences ?","o":["Aucune","Les ressources sont ce que l'entreprise possède, les compétences ce qu'elle sait faire","Les compétences sont financières","Les ressources sont humaines"],"a":1,"e":"Supérieures aux concurrents, elles deviennent ressources stratégiques et compétences distinctives : la capacité stratégique.","s":"Fiche 1 · Partie VI"},{"t":"Diagnostic interne","q":"Des ressources équivalentes à celles des concurrents sont :","o":["Des forces","Les ressources minimales du secteur","Un déficit","Des ressources stratégiques"],"a":1,"e":"Inférieures = déficit (faiblesse), équivalentes = minimales, supérieures = stratégiques (force).","s":"Partie VI"},{"t":"Diagnostic interne","q":"Dans le cas Conforama/But cité en cours, quelle est la part du marché français de l'ensemble ?","o":["15 %","19 %","40 %","70 %"],"a":1,"e":"19 % devant Ikea (15 %), avec 70 % de fournisseurs en commun.","s":"Partie VI"},{"t":"Diagnostic interne","q":"L'exemple de Nokia illustre qu'une ressource rare…","o":["Est toujours un avantage","Peut devenir un blocage","Est transférable","Est durable"],"a":1,"e":"Questions sur la rareté : transférable ? durable (mines) ? peut-elle devenir un blocage ?","s":"Partie VI"},{"t":"Diagnostic interne","q":"Pourquoi l'avantage concurrentiel repose-t-il surtout sur les compétences ?","o":["Parce que les ressources sont gratuites","Parce qu'une ressource est souvent imitable","Parce que les compétences sont rares","Parce que les ressources ne créent pas de valeur"],"a":1,"e":"Les compétences sont liées à des activités créatrices de valeur, plus difficiles à imiter.","s":"Partie VI"},{"t":"Diagnostic interne","q":"Dans le SWOT, les options ST consistent à :","o":["Utiliser les forces pour saisir les opportunités","Utiliser les forces pour éviter les menaces","Minimiser les faiblesses pour saisir les opportunités","Minimiser les faiblesses pour éviter les menaces"],"a":1,"e":"SO, WO, ST, WT : quatre familles d'options stratégiques.","s":"Partie VI"},{"t":"Diagnostic interne","q":"Le diagnostic interne produit :","o":["Opportunités et menaces","Forces et faiblesses","Les FCS","Les scénarios"],"a":1,"e":"L'externe donne opportunités, menaces et FCS ; l'interne donne forces et faiblesses.","s":"Fiche 1 · Partie VI"},{"t":"Chaîne de valeur","q":"Qui a défini la chaîne de valeur en 1985 ?","o":["Barney","Mintzberg","Michael Porter","Gereffi"],"a":2,"e":"Elle décompose la firme en activités pertinentes pour comprendre les coûts et les sources de différenciation.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Laquelle est une fonction de soutien de la chaîne de valeur ?","o":["Logistique","Production","Gestion des ressources humaines","Commercialisation"],"a":2,"e":"Soutien : infrastructure et systèmes, RH, développement technologique. Primaires : approvisionnements, logistique, production, commercialisation, services.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Comment se définit la marge dans la chaîne de valeur ?","o":["CA − coûts variables","Valeur totale − ensemble des coûts des activités créatrices de valeur","Prix − coût d'achat","Résultat net"],"a":1,"e":"La chaîne de valeur donne la valeur totale : activités créatrices de valeur + marge.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Le « système de valeur » de Porter comprend :","o":["Uniquement la chaîne de la firme","Les chaînes des fournisseurs, de la firme, des circuits de distribution et des clients","Les actionnaires et les salariés","Les forces concurrentielles"],"a":1,"e":"Pour une firme diversifiée, s'ajoutent les chaînes de chaque unité.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Une activité faiblement créatrice de valeur a vocation à être :","o":["Renforcée","Externalisée","Intégrée","Maintenue"],"a":1,"e":"Fortement créatrice = renforcée ou maintenue ; faiblement créatrice = externalisée.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Dans l'exemple L'Oréal, quelle activité crée le plus de valeur (+++) ?","o":["Approvisionnement","Opérations","Marketing et ventes","Logistique externe"],"a":2,"e":"Lien émotionnel avec le client, accent sur les différences et les enjeux sociaux.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Dans l'exemple L'Oréal, les opérations (140 pays, 42 usines) créent de la valeur par :","o":["Différenciation","Domination par les coûts","Focalisation","Épuration"],"a":1,"e":"Opérations flexibles, organisées, contrôlées : boost (++) par domination par les coûts.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Qu'est-ce qu'une chaîne globale de valeur ?","o":["La chaîne d'un seul site","L'ensemble des activités productives opérées en différents lieux géographiques au niveau mondial, de la conception à la distribution","Un réseau de distribution","Une alliance"],"a":1,"e":"Organisation du processus de production d'un bien au niveau mondial, contexte d'hypermondialisation.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Quelle part du commerce mondial les chaînes globales de valeur représentaient-elles lors de la Covid-19 ?","o":["Un tiers","La moitié","Deux tiers","90 %"],"a":2,"e":"Avec une baisse de la production industrielle de 13,5 % et une forte dépendance aux fournisseurs chinois.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Les deux problématiques clés de la mondialisation sont :","o":["Prix et volume","Faire ou faire-faire ? Où et par qui ?","Coûts et différenciation","Interne et externe"],"a":1,"e":"Externalisation vs intégration ; délocalisation.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Une chaîne pilotée par les acheteurs (buyer-driven) est dominée par :","o":["Les usines","Le marketing de marque et les fabricants de marques","Les producteurs","L'État"],"a":1,"e":"Par opposition à la chaîne pilotée par les producteurs (producer-driven).","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Qu'est-ce que l'upgrading industriel (Gereffi) ?","o":["La délocalisation","Le processus de capture d'une part croissante de richesse en développant des tâches plus complexes","La baisse des coûts","L'externalisation"],"a":1,"e":"Assemblage de produits importés → full-package → marque originale → conception originale.","s":"Partie VI"},{"t":"Chaîne de valeur","q":"Lequel n'est PAS une des 4 dimensions de l'approche CGV ?","o":["Structure input-output","Géographie et territorialité","Gouvernance","Stratégie de prix"],"a":3,"e":"La quatrième dimension est le contexte socio-institutionnel.","s":"Partie VI"}];
 const THEMES = [...new Set(BANK.map(q => q.t))];
 const $ = id => document.getElementById(id);
-let selected = new Set(THEMES), queue = [], idx = 0, score = 0, wrong = [], mode = "all";
-const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+const ls = { get(k){ try { return JSON.parse(localStorage.getItem("b3:" + COURSE + ":" + k)); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem("b3:" + COURSE + ":" + k, JSON.stringify(v)); } catch(e){} } };
+const BADGES = [
+  ["first", "Premier pas", "Terminer une série"],
+  ["streak5", "En feu", "5 bonnes réponses d'affilée"],
+  ["streak10", "Inarrêtable", "10 bonnes réponses d'affilée"],
+  ["perfect", "Sans faute", "Un examen blanc à 20/20"],
+  ["chrono", "Éclair", "Un chrono à 12/15 ou plus"],
+  ["cards", "Mémoire vive", "Une session de flashcards terminée"],
+  ["master", "Maître du cours", "80 % de maîtrise sur tous les thèmes"],
+];
+const PRAISE = ["Exact.", "Bien joué.", "Tu gères.", "Propre.", "Oui !", "Nickel.", "C'est ça."];
+const NOPE = ["Pas tout à fait.", "Raté, mais tu la retiendras.", "Presque.", "Non, regarde bien :"];
+let selected = new Set(THEMES), queue = [], idx = 0, score = 0, wrong = [], mode = "all", streak = 0, maxStreak = 0, pts = 0, tStart = 0, tick = null, tLeft = 0;
+let stats = ls.get("stats") || {}, xp = ls.get("xp") || 0, earned = new Set(ls.get("badges") || []), gained = [];
 
+function level(x){ return Math.floor(Math.sqrt(x / 60)) + 1; }
+function renderHud(){
+  const l = level(xp), lo = (l - 1) ** 2 * 60, hi = l ** 2 * 60;
+  $("lvl").textContent = "Niveau " + l; $("xptxt").textContent = xp + " XP";
+  $("xpfill").style.width = Math.round((xp - lo) / (hi - lo) * 100) + "%";
+}
 function renderChips(){
   $("chips").innerHTML = "";
   THEMES.forEach(t => {
@@ -119,20 +180,31 @@ function renderChips(){
     b.onclick = () => { selected.has(t) ? selected.delete(t) : selected.add(t); if (!selected.size) selected.add(t); renderChips(); };
     $("chips").appendChild(b);
   });
-  const best = ls.get("best-exam");
-  $("best").hidden = !best; if (best) $("best").textContent = `Meilleur examen blanc : ${best}/20`;
+  const m = $("mastery"); m.innerHTML = "";
+  THEMES.forEach(t => {
+    const s = stats[t] || { ok: 0, n: 0 }; const p = s.n ? Math.round(s.ok / s.n * 100) : 0;
+    const d = document.createElement("div"); d.className = "mrow";
+    d.innerHTML = `<span></span><span class="pct">${s.n ? p + " % · " + s.n + " rép." : "pas encore joué"}</span><div class="bar"><i style="width:${p}%"></i></div>`;
+    d.firstChild.textContent = t; m.appendChild(d);
+  });
+  const bd = $("badges"); bd.innerHTML = "";
+  BADGES.forEach(([id, name, how]) => { const s = document.createElement("span"); s.className = "badge" + (earned.has(id) ? "" : " locked"); s.title = how; s.textContent = (earned.has(id) ? "🏅 " : "🔒 ") + name; bd.appendChild(s); });
+  renderHud();
 }
 function shuffle(a){ for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function pool(){ return BANK.filter(q => selected.has(q.t)); }
+function award(id){ if (!earned.has(id)) { earned.add(id); gained.push(id); ls.set("badges", [...earned]); } }
 function start(list, m){
-  mode = m; queue = list; idx = 0; score = 0; wrong = [];
-  $("home").hidden = true; $("result").hidden = true; $("quiz").hidden = false;
+  mode = m; queue = list; idx = 0; score = 0; wrong = []; streak = 0; maxStreak = 0; pts = 0; gained = [];
+  $("home").hidden = true; $("result").hidden = true; $("cards").hidden = true; $("quiz").hidden = false;
+  $("timer").hidden = mode !== "chrono";
   show();
 }
 function show(){
   const q = queue[idx];
   $("counter").textContent = `Question ${idx + 1} / ${queue.length}`;
   $("theme").textContent = q.t;
-  $("live").textContent = `Score ${score}`;
+  $("streak").textContent = streak >= 2 ? `🔥 ×${streak}` : "";
   $("bar").style.width = (idx / queue.length * 100) + "%";
   $("qtext").textContent = q.q;
   $("fb").hidden = true; $("next").hidden = true;
@@ -143,28 +215,45 @@ function show(){
     b.onclick = () => answer(i);
     opts.appendChild(b);
   });
+  tStart = Date.now();
+  if (mode === "chrono") { tLeft = 20; $("timer").textContent = tLeft + " s"; $("timer").className = "timer"; clearInterval(tick); tick = setInterval(() => { tLeft--; $("timer").textContent = tLeft + " s"; if (tLeft <= 5) $("timer").className = "timer low"; if (tLeft <= 0) { clearInterval(tick); answer(-1); } }, 1000); }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 function answer(i){
+  clearInterval(tick);
   const q = queue[idx]; const btns = [...$("opts").children];
   btns.forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add("ok"); else if (j === i) b.classList.add("ko"); });
-  const good = i === q.a; if (good) score++; else wrong.push(q);
+  const good = i === q.a; const secs = (Date.now() - tStart) / 1000;
+  const s = stats[q.t] || { ok: 0, n: 0 }; s.n++; if (good) s.ok++; stats[q.t] = s; ls.set("stats", stats);
+  let p = 0;
+  if (good) { score++; streak++; maxStreak = Math.max(maxStreak, streak); p = 10 + Math.min(streak - 1, 5) * 2 + (mode === "chrono" && secs < 8 ? 5 : 0); }
+  else { streak = 0; wrong.push(q); }
+  pts += p; xp += p; ls.set("xp", xp); renderHud();
+  if (streak === 5) award("streak5"); if (streak === 10) award("streak10");
+  $("streak").textContent = streak >= 2 ? `🔥 ×${streak}` : ""; $("streak").className = "streak" + (streak >= 3 ? " hot" : "");
   const fb = $("fb"); fb.hidden = false; fb.className = "feedback " + (good ? "ok" : "ko");
-  fb.innerHTML = `<strong>${good ? "Bonne réponse." : "Non, la bonne réponse est " + "ABCD"[q.a] + "."}</strong> <span></span><br><span class="slide">Source : ${q.s}</span>`;
-  fb.querySelector("span").textContent = q.e;
-  $("live").textContent = `Score ${score}`;
+  const head = good ? PRAISE[Math.floor(Math.random() * PRAISE.length)] : (i < 0 ? "Temps écoulé ! La bonne réponse était " + "ABCD"[q.a] + "." : NOPE[Math.floor(Math.random() * NOPE.length)] + " La bonne réponse est " + "ABCD"[q.a] + ".");
+  fb.innerHTML = `<span class="pts">${good ? "+" + p + " XP" : ""}</span><strong>${head}</strong> <span></span><br><span class="slide">Source : ${q.s}</span>`;
+  fb.querySelector("span:not(.pts)").textContent = q.e;
+  if (good && streak >= 3) burst(12);
   $("next").hidden = false; $("next").textContent = idx + 1 < queue.length ? "Question suivante" : "Voir le résultat";
   $("next").focus();
 }
 $("next").onclick = () => { idx++; idx < queue.length ? show() : finish(); };
-$("quit").onclick = () => { $("quiz").hidden = true; $("home").hidden = false; };
+$("quit").onclick = () => { clearInterval(tick); $("quiz").hidden = true; $("home").hidden = false; renderChips(); };
 function finish(){
   $("quiz").hidden = true; $("result").hidden = false;
   const n = queue.length, pct = Math.round(score / n * 100);
+  award("first");
+  if (mode === "exam" && score === 20) award("perfect");
+  if (mode === "chrono" && score >= 12) award("chrono");
+  if (THEMES.every(t => stats[t] && stats[t].n >= 5 && stats[t].ok / stats[t].n >= .8)) award("master");
   $("scoreBig").textContent = `${score} / ${n}`;
-  $("verdict").textContent = pct >= 90 ? "Tu es prêt pour l'examen." : pct >= 70 ? "Solide. Revois les thèmes en rouge ci-dessous." : pct >= 50 ? "Ça passe, mais relis les parties citées avant l'examen." : "Reprends le cours thème par thème, puis rejoue tes erreurs.";
-  $("scoreSub").textContent = `${pct} % de bonnes réponses · ${wrong.length} erreur${wrong.length > 1 ? "s" : ""}`;
-  if (mode === "exam") { const b = Number(ls.get("best-exam") || 0); if (score > b) ls.set("best-exam", String(score)); }
+  $("verdict").textContent = pct === 100 ? "Parfait. Rien à redire." : pct >= 90 ? "Tu es prêt pour l'examen." : pct >= 70 ? "Solide. Revois les thèmes en rouge ci-dessous." : pct >= 50 ? "Ça passe, mais relis les parties citées avant l'examen." : "Reprends la synthèse thème par thème, puis rejoue tes erreurs.";
+  $("scoreSub").textContent = `${pct} % · +${pts} XP · meilleure série ${maxStreak} · ${wrong.length} erreur${wrong.length > 1 ? "s" : ""}`;
+  const nb = $("newbadges"); nb.innerHTML = "";
+  gained.forEach(id => { const b = BADGES.find(x => x[0] === id); const s = document.createElement("span"); s.className = "newbadge"; s.textContent = "🏅 Nouveau badge : " + b[1]; nb.appendChild(s); });
+  if (pct >= 70 || gained.length) burst(pct >= 90 ? 120 : 60);
   $("retryWrong").hidden = !wrong.length;
   const rv = $("review"); rv.innerHTML = "";
   queue.forEach((q, k) => {
@@ -177,8 +266,40 @@ function finish(){
 }
 $("retryWrong").onclick = () => start(shuffle([...wrong]), "retry");
 $("backHome").onclick = () => { $("result").hidden = true; $("home").hidden = false; renderChips(); };
-$("startAll").onclick = () => start(BANK.filter(q => selected.has(q.t)), "all");
-$("startExam").onclick = () => start(shuffle(BANK.filter(q => selected.has(q.t))).slice(0, 20), "exam");
+$("startAll").onclick = () => start(pool(), "all");
+$("startExam").onclick = () => start(shuffle(pool()).slice(0, 20), "exam");
+$("startChrono").onclick = () => start(shuffle(pool()).slice(0, 15), "chrono");
+
+/* Flashcards */
+let cq = [], ci = 0, cagain = [], cround = 1, cflipped = false;
+function cstart(list){ cq = list; ci = 0; cagain = []; cflipped = false; $("home").hidden = true; $("cards").hidden = false; cshow(); }
+function cshow(){
+  const q = cq[ci]; $("fc").classList.remove("flipped"); cflipped = false;
+  $("ccounter").textContent = `Carte ${ci + 1} / ${cq.length}`; $("ctheme").textContent = q.t; $("cleft").textContent = cround > 1 ? `Tour ${cround}` : "";
+  $("cbar").style.width = (ci / cq.length * 100) + "%";
+  $("cq").textContent = q.q; $("ca").textContent = q.o[q.a]; $("ce").textContent = q.e;
+}
+$("fc").onclick = () => { cflipped = !cflipped; $("fc").classList.toggle("flipped", cflipped); };
+function cnext(knew){
+  if (!knew) cagain.push(cq[ci]); else { xp += 3; ls.set("xp", xp); renderHud(); }
+  ci++;
+  if (ci < cq.length) cshow();
+  else if (cagain.length) { cq = shuffle(cagain); cagain = []; ci = 0; cround++; cshow(); }
+  else { award("cards"); burst(60); $("cards").hidden = true; $("home").hidden = false; renderChips(); alertDone(); }
+}
+function alertDone(){ const h = $("home"); const p = document.createElement("p"); p.className = "sub"; p.textContent = "Flashcards terminées, toutes les cartes sont connues. Belle mémoire."; h.prepend(p); setTimeout(() => p.remove(), 6000); }
+$("cknew").onclick = () => cnext(true); $("cagain").onclick = () => cnext(false);
+$("cquit").onclick = () => { $("cards").hidden = true; $("home").hidden = false; renderChips(); };
+$("startCards").onclick = () => { cround = 1; cstart(shuffle(pool())); };
+
+/* Confetti */
+function burst(n){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = $("confetti"); c.hidden = false; c.width = innerWidth; c.height = innerHeight; const ctx = c.getContext("2d");
+  const cols = ["#2f7d5b", "#e8694f", "#f2c14e", "#5cc08f", "#ffffff"];
+  const ps = Array.from({ length: n }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 200, y: innerHeight * .35, vx: (Math.random() - .5) * 12, vy: -Math.random() * 10 - 4, r: 4 + Math.random() * 5, c: cols[Math.floor(Math.random() * cols.length)], a: Math.random() * 6 }));
+  let f = 0; (function step(){ ctx.clearRect(0, 0, c.width, c.height); ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .35; p.a += .2; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * .6); ctx.restore(); }); if (++f < 70) requestAnimationFrame(step); else { ctx.clearRect(0, 0, c.width, c.height); c.hidden = true; } })();
+}
 renderChips();
 </script>
 </body>
