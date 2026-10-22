@@ -15,6 +15,8 @@
   <h1>Coûts partiels et prise de décision</h1>
   <p class="sub">Trois méthodes, trois marges, un réflexe : on part du chiffre d'affaires, on retire ce qu'on sait imputer, et c'est la marge (pas le résultat) qui décide de garder ou d'abandonner un produit.</p>
 
+
+  <div class="mission" id="mission"><span class="ic">🎯</span><div><b>Ta mission</b><p class="sub">Savoir classer une charge, calculer la bonne marge et décider si on garde, restructure ou abandonne un produit. Coche chaque section quand elle est claire pour toi, puis va chercher les XP au quiz.</p><div class="mbar"><i></i></div><p class="sub mtxt" style="margin-top:6px"></p></div></div>
   <div class="toc">
     <a href="#s1">1. Pourquoi les coûts partiels</a><a href="#s2">2. La grille des charges</a><a href="#s3">3. Coûts variables</a><a href="#s4">4. Coûts spécifiques</a><a href="#s5">5. Coûts directs</a><a href="#s6">Comparatif</a><a href="#reflexes">Réflexes d'examen</a>
   </div>
@@ -30,6 +32,9 @@
     <tr><td><b>Directe</b></td><td>Matières, commission par vente du produit A</td><td>Salaire du directeur de production du produit A</td></tr>
     <tr><td><b>Indirecte</b></td><td>Énergie partagée</td><td>Loyer, direction générale, publicité commune</td></tr>
   </table></div>
+
+  <div class="eyebrow" style="margin-top:14px">Classe la charge en un clic</div>
+  <div class="reveals"><button class="reveal" type="button"><b>Matières premières du produit A</b><span class="hint">Clique pour révéler</span><span class="ans">Variable directe.</span></button><button class="reveal" type="button"><b>Salaire du directeur de production du produit A</b><span class="hint">Clique pour révéler</span><span class="ans">Fixe directe.</span></button><button class="reveal" type="button"><b>Loyer, DG, publicité commune</b><span class="hint">Clique pour révéler</span><span class="ans">Fixe indirecte.</span></button><button class="reveal" type="button"><b>Énergie partagée entre les ateliers</b><span class="hint">Clique pour révéler</span><span class="ans">Variable indirecte.</span></button></div>
   <p>Le nouvel outil est le <b>compte de résultat différentiel</b>. Avant, on additionnait tous les coûts pour obtenir un coût de revient par produit et un résultat par produit, trompeur. Maintenant, on part du chiffre d'affaires, on retire seulement les coûts qu'on sait imputer pour obtenir une <b>marge par produit</b>, et les coûts non imputables sont retirés en bloc pour donner un <b>résultat global</b>.</p>
 
   <h2 id="s3">3. Méthode 1 : les coûts variables</h2>
@@ -40,6 +45,10 @@
   <h3>Cas BASALT : trois destinations, une fausse coupable</h3>
   <p>Séjours en Hongrie, Russie et République tchèque, charges fixes globales de 129 600 €. Avec les charges fixes réparties au prorata (96 € par séjour), la République tchèque ressort à −11 700 €. En marge sur coûts variables : Hongrie +34 500 €, Russie +121 800 €, République tchèque <b>+31 500 €</b>. Verdict : on garde la République tchèque, son déficit venait d'une répartition contestable des charges fixes. Résultat global inchangé : 58 200 €.</p>
 
+
+  <div class="mnemo"><b>Mnémo.</b> 3 méthodes, 3 marges : coûts <b>V</b>ariables → MC<b>V</b> ; coûts <b>S</b>pécifiques → MC<b>S</b> ; coûts <b>D</b>irects → MC<b>D</b>. La lettre de la méthode est la lettre de la marge.</div>
+
+  <div class="vf"><div class="eyebrow">Vrai ou faux · les coûts variables</div><div class="item" data-a="f" data-why="MCV > 0 on garde, MCV ≤ 0 on abandonne à court terme."><p>Une MCV négative ou nulle signifie qu'on garde le produit.</p></div><div class="item" data-a="v" data-why="Sans elle, la seule marge de A (60 000) ne couvre pas 70 500 € de charges fixes."><p>Chez CASSIS, la chaise B rapporte 22 500 € de marge sur coûts variables.</p></div><div class="item" data-a="f" data-why="On la garde : sa MCV est de +31 500 €, son déficit venait de la répartition des charges fixes."><p>Chez BASALT, on abandonne la République tchèque.</p></div></div>
   <h2 id="s4">4. Méthode 2 : les coûts spécifiques</h2>
   <p>Coûts variables + coûts fixes directs = coût spécifique. CA − coûts variables = MCV ; MCV − coûts fixes directs = <b>marge sur coûts spécifiques (MCS)</b> par produit ; MCS totale − coûts fixes indirects (en bloc) = résultat global. Une charge fixe directe, c'est le directeur de production du produit A ; une charge fixe indirecte, c'est le DG ou le loyer.</p>
   <div class="key"><b>Règle d'or.</b> La décision se prend sur la MCS. MCS &lt; 0 : restructurer (réduire les charges fixes directes) ou abandonner, car les charges fixes directes disparaissent avec le produit. Le résultat global reste le même qu'avec les autres méthodes (12 000 € chez COMM1) : seule la ventilation change.</div>
@@ -56,6 +65,8 @@
   </table></div>
   <p>L'entreprise gagne 31 750 € et les deux modèles ont une MCV positive, mais ALBER a une MCS négative : il faut <b>restructurer ALBER</b> (réduire ses charges fixes directes) ou l'abandonner pour améliorer le résultat.</p>
 
+
+  <div class="vf"><div class="eyebrow">Vrai ou faux · les coûts spécifiques</div><div class="item" data-a="v" data-why="−40 550 € : restructurer ALBER ou l'abandonner."><p>Chez DELCOURT, le modèle ALBER a une MCS négative.</p></div><div class="item" data-a="f" data-why="Il ne change jamais ; seule la ventilation entre produits change."><p>Le résultat global de l'entreprise change selon la méthode de coûts partiels utilisée.</p></div><div class="item" data-a="v" data-why="C'est pour cela que la MCS est la marge qui décide dans cette méthode."><p>Une charge fixe directe disparaît avec le produit si on l'abandonne.</p></div></div>
   <h2 id="s5">5. Méthode 3 : les coûts directs</h2>
   <p>On impute tout ce qui est direct, variable ou fixe, et rien d'indirect : c'est l'autre sens de lecture de la grille. CA − coûts directs = <b>marge sur coûts directs (MCD)</b> par produit ; MCD totale − coûts indirects (variables et fixes, en bloc) = résultat global. Exemple BAEGA (montres) : montre A 120 000 − 90 000 = +30 000 ; montre B 112 500 − 87 500 = +25 000 ; total 55 000 − 43 000 de coûts indirects = +12 000 €.</p>
   <div class="key"><b>Règle d'or.</b> MCD &gt; 0 pour les deux montres : on garde les deux. MCD &lt; 0 : supprimer le produit ou redéployer ses coûts directs. Méthode idéale quand les charges indirectes pèsent lourd et qu'on ne sait pas les répartir.</div>
@@ -69,6 +80,10 @@
   </table></div>
   <p>Pas de recette automatique : on choisit selon la structure des charges et la capacité du contrôle de gestion à les répartir objectivement.</p>
 
+
+  <div class="piege"><b>Le piège.</b> Un produit « déficitaire » en coûts complets n'est pas forcément à supprimer : s'il a une marge positive, il contribue aux charges fixes communes. Supprime-le, et le résultat global baisse.</div>
+
+  <div class="vf"><div class="eyebrow">Vrai ou faux · les réflexes</div><div class="item" data-a="f" data-why="Elle impute tout ce qui est direct (variable ou fixe), rien d'indirect."><p>La méthode des coûts directs impute aussi les coûts indirects variables.</p></div><div class="item" data-a="v" data-why="Pour les coûts partiels il faut la répartition variable / fixe ou direct / indirect."><p>Quand un énoncé donne le « coût de revient », on est en coûts complets.</p></div><div class="item" data-a="f" data-why="Ça, c'est le rôle des coûts complets ; les coûts partiels servent aux décisions de court terme."><p>Pour fixer un prix de vente qui couvre tout, on utilise les coûts partiels.</p></div></div>
   <h2 id="reflexes">Les réflexes qui sauvent en examen</h2>
   <p><b>Le résultat global ne change jamais.</b> Coûts complets, variables, spécifiques, directs : même total (12 000 € chez CASSIS, COMM1 et BAEGA), seule la ventilation change. <b>Une marge positive = on garde</b> : un produit « déficitaire » en coûts complets peut être un bon contributeur aux charges fixes, ne le supprime pas trop vite. <b>Court terme = coûts partiels</b> (sous-traiter, abandonner, ajuster un prix) ; fixer un prix de vente qui couvre tout = coûts complets. <b>Lis les mots du texte</b> : « coût de revient » → coûts complets ; « charges fixes globales, non imputables, communes » → indirectes ; « charges fixes de production du modèle X » → directes.</p>
   <p>Module suivant annoncé : seuil de rentabilité et risque d'exploitation.</p>
@@ -76,5 +91,6 @@
   <p style="margin-top:28px"><a class="btn" href="quiz.html">Tester ses connaissances : le quiz</a></p>
   <p class="foot">Synthèse rédigée à partir de la fiche « Coûts partiels et prise de décision » du cours de David Ngonga (INSEEC Boostcamp), usage réservé aux étudiants du cours.</p>
 </div>
+<script src="../fun.js"></script>
 </body>
 </html>

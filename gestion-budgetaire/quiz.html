@@ -5,81 +5,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Quiz — Gestion budgétaire</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../site.css">
 <style>
-/* Layout: one focused card per question, progress rail on top, theme chips under the title; feels like a study app, not a form. */
-:root {
-  --bg: #f6f3ec; --surface: #ffffff; --fg: #1b2b26; --muted: #5f6f69; --line: #d8e3dc;
-  --accent: #2f7d5b; --accent-ink: #ffffff; --warm: #e8694f; --ok-bg: #e4f2ea; --ok-fg: #1f5c41; --ko-bg: #fbe6e1; --ko-fg: #9b3a25;
-  --display: "Lexend", "Segoe UI", system-ui, sans-serif; --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-}
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #141c19; --surface: #1d2823; --fg: #ecf1ee; --muted: #9fb0a8; --line: #2f3d37;
-  --accent: #5cc08f; --accent-ink: #0f1a15; --warm: #f08a70; --ok-bg: #1e3a2d; --ok-fg: #a8e6c4; --ko-bg: #46241c; --ko-fg: #ffb8a4; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #141c19; --surface: #1d2823; --fg: #ecf1ee; --muted: #9fb0a8; --line: #2f3d37;
-  --accent: #5cc08f; --accent-ink: #0f1a15; --warm: #f08a70; --ok-bg: #1e3a2d; --ok-fg: #a8e6c4; --ko-bg: #46241c; --ko-fg: #ffb8a4; color-scheme: dark }
-html,body{margin:0} * { box-sizing: border-box; } body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.5; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
-.wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 18px; }
-h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.4rem, 4vw, 1.9rem); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
-.sub { color: var(--muted); margin: 4px 0 0; font-size: .95rem; }
-.eyebrow { font-family: var(--display); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+/* Quiz layout: one card per question, XP bar and streak flame on top, modes as big tiles. */
+.wrap { display: grid; gap: 18px; max-width: 720px; }
+.hud { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; }
+.hud .lvl { font-family: var(--display); font-weight: 700; font-size: 1.05rem; }
+.hud .xpbar { flex: 1; min-width: 140px; height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.hud .xpbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--warm)); width: 0; transition: width .4s; }
+.hud .xp { font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; font: 600 .78rem var(--display); background: var(--tint); color: var(--accent); }
+.badge.locked { background: transparent; color: var(--muted); opacity: .7; }
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 14px; }
+.mode { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; cursor: pointer; color: var(--fg); font-family: var(--body); display: grid; gap: 4px; }
+.mode:hover, .mode:focus-visible { border-color: var(--accent); }
+.mode b { font-family: var(--display); font-size: 1rem; }
+.mode small { color: var(--muted); font-size: .82rem; }
+.mode .ic { font-size: 1.4rem; line-height: 1; }
+.mastery { display: grid; gap: 8px; margin-top: 10px; }
+.mrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font-size: .88rem; }
+.mrow .bar { grid-column: 1 / -1; height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.mrow .bar i { display: block; height: 100%; background: var(--accent); }
+.mrow .pct { color: var(--muted); font-variant-numeric: tabular-nums; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { border: 1px solid var(--line); background: transparent; color: var(--fg); border-radius: 999px; padding: 6px 12px; font: 500 .85rem var(--body); cursor: pointer; }
 .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.chip:focus-visible, .btn:focus-visible, .opt:focus-visible { outline: 3px solid var(--warm); outline-offset: 2px; }
-.modes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-.btn { border: 0; border-radius: 10px; padding: 12px 18px; font: 600 .95rem var(--display); cursor: pointer; background: var(--accent); color: var(--accent-ink); }
-.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
 .rail { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
 .rail > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
-.meta { display: flex; justify-content: space-between; gap: 12px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+.meta { display: flex; justify-content: space-between; gap: 12px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; flex-wrap: wrap; align-items: center; }
+.streak { font-family: var(--display); font-weight: 700; color: var(--warm); }
+.streak.hot { animation: pop .3s; }
+.timer { font-family: var(--display); font-weight: 700; color: var(--accent); min-width: 3ch; text-align: right; }
+.timer.low { color: var(--warm); animation: pop .4s infinite alternate; }
+@keyframes pop { from { transform: scale(1); } to { transform: scale(1.18); } }
 .qtext { font-family: var(--display); font-weight: 600; font-size: 1.15rem; margin: 8px 0 16px; text-wrap: balance; }
 .opts { display: grid; gap: 10px; }
-.opt { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; text-align: left; width: 100%; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 400 .98rem var(--body); cursor: pointer; line-height: 1.45; }
-.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; text-align: left; width: 100%; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 400 .98rem var(--body); cursor: pointer; line-height: 1.45; transition: transform .12s; }
+.opt:hover:not(:disabled) { border-color: var(--accent); transform: translateX(3px); }
 .opt b { font-family: var(--display); color: var(--muted); }
 .opt.ok { background: var(--ok-bg); border-color: var(--ok-fg); color: var(--ok-fg); } .opt.ok b { color: var(--ok-fg); }
-.opt.ko { background: var(--ko-bg); border-color: var(--ko-fg); color: var(--ko-fg); } .opt.ko b { color: var(--ko-fg); }
+.opt.ko { background: var(--ko-bg); border-color: var(--ko-fg); color: var(--ko-fg); animation: shake .35s; } .opt.ko b { color: var(--ko-fg); }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .opt:disabled { cursor: default; }
 .feedback { margin-top: 14px; border-radius: 10px; padding: 12px 14px; font-size: .95rem; }
 .feedback.ok { background: var(--ok-bg); color: var(--ok-fg); } .feedback.ko { background: var(--ko-bg); color: var(--ko-fg); }
 .feedback .slide { display: inline-block; margin-top: 6px; font: 600 .78rem var(--display); letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+.feedback .pts { float: right; font: 700 .95rem var(--display); }
 .actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
 .score { text-align: center; }
 .big { font-family: var(--display); font-size: clamp(2.6rem, 10vw, 4rem); font-weight: 700; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
 .verdict { font-size: 1.05rem; margin: 10px 0 4px; }
+.newbadge { display: inline-block; margin: 8px 4px 0; padding: 8px 14px; border-radius: 999px; background: var(--warm); color: #fff; font: 700 .85rem var(--display); animation: pop .5s 3 alternate; }
 .review { display: grid; gap: 8px; margin-top: 16px; text-align: left; }
 .review details { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
 .review summary { cursor: pointer; font-weight: 500; }
 .review summary.bad { color: var(--ko-fg); } .review summary.good { color: var(--ok-fg); }
 .review p { margin: 8px 0 0; font-size: .92rem; color: var(--muted); }
-.best { font-size: .85rem; color: var(--muted); }
-@media (prefers-reduced-motion: reduce) { .rail > i { transition: none; } }
+/* Flashcards */
+.fc { perspective: 1200px; min-height: 220px; cursor: pointer; }
+.fc .inner { position: relative; width: 100%; min-height: 220px; transition: transform .5s; transform-style: preserve-3d; }
+.fc.flipped .inner { transform: rotateY(180deg); }
+.fc .face { position: absolute; inset: 0; backface-visibility: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; place-content: center; text-align: center; gap: 8px; }
+.fc .face.back { transform: rotateY(180deg); background: var(--tint); }
+.fc .face .q { font-family: var(--display); font-weight: 600; font-size: 1.1rem; text-wrap: balance; }
+.fc .face .hint { font-size: .8rem; color: var(--muted); }
+.fc .face .a { font-family: var(--display); font-weight: 700; color: var(--accent); }
+.fc .face .e { font-size: .92rem; color: var(--muted); }
+canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 9; }
+@media (prefers-reduced-motion: reduce) { .rail > i, .fc .inner, .hud .xpbar i { transition: none; } .opt.ko, .streak.hot, .timer.low, .newbadge { animation: none; } }
 </style>
 </head>
 <body>
+<canvas class="confetti" id="confetti" hidden></canvas>
 <div class="wrap">
-  <nav class="top" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px"><a class="brand" href="../index.html" style="font-family:var(--display);font-weight:700;text-decoration:none;color:var(--fg)">B3 <span style="color:var(--accent)">Commerce International</span></a><a href="synthese.html" style="font:500 .9rem var(--body)">Relire la synthèse</a></nav>
+  <nav class="top"><a class="brand" href="../index.html">B3 <span>Commerce International</span></a><a href="synthese.html">Relire la synthèse</a></nav>
   <header>
     <div class="eyebrow">INSEEC · Gestion budgétaire · coûts partiels</div>
     <h1>Quiz Gestion budgétaire</h1>
-    <p class="sub">27 questions tirées uniquement de la fiche « Coûts partiels et prise de décision » de D. Ngonga. Une bonne réponse par question, correction immédiate avec la page de référence.</p>
+    <p class="sub">27 questions tirées uniquement de la fiche « Coûts partiels et prise de décision » de D. Ngonga. Une bonne réponse par question, correction immédiate avec la page de référence. Gagne des XP, enchaîne les séries, débloque les badges.</p>
   </header>
 
+  <div class="hud">
+    <span class="lvl" id="lvl">Niveau 1</span>
+    <div class="xpbar"><i id="xpfill"></i></div>
+    <span class="xp" id="xptxt">0 XP</span>
+  </div>
+
   <section class="panel" id="home">
-    <div class="eyebrow">Thèmes</div>
+    <div class="eyebrow">Choisis ton mode</div>
+    <div class="modes">
+      <button class="mode" id="startAll"><span class="ic">📚</span><b>Entraînement</b><small>Toutes les questions des thèmes cochés, sans pression.</small></button>
+      <button class="mode" id="startExam"><span class="ic">🎓</span><b>Examen blanc</b><small>20 questions au hasard, comme le jour J.</small></button>
+      <button class="mode" id="startChrono"><span class="ic">⚡</span><b>Chrono</b><small>15 questions, 20 s chacune, bonus de vitesse.</small></button>
+      <button class="mode" id="startCards"><span class="ic">🃏</span><b>Flashcards</b><small>Retourne la carte, trie « je savais » / « à revoir ».</small></button>
+    </div>
+    <div class="eyebrow" style="margin-top:20px">Thèmes</div>
     <p class="sub" style="margin-bottom:10px">Tout sélectionné par défaut. Décoche pour cibler une partie du cours.</p>
     <div class="chips" id="chips"></div>
-    <div class="modes">
-      <button class="btn" id="startAll">Lancer toutes les questions</button>
-      <button class="btn ghost" id="startExam">Examen blanc : 20 au hasard</button>
-    </div>
-    <p class="best" id="best" hidden></p>
+    <div class="eyebrow" style="margin-top:20px">Ta maîtrise par thème</div>
+    <div class="mastery" id="mastery"></div>
+    <div class="eyebrow" style="margin-top:20px">Badges</div>
+    <div class="badges" id="badges"></div>
   </section>
 
   <section class="panel" id="quiz" hidden>
-    <div class="meta"><span id="counter"></span><span id="theme"></span><span id="live"></span></div>
+    <div class="meta"><span id="counter"></span><span id="theme"></span><span class="streak" id="streak"></span><span class="timer" id="timer" hidden></span></div>
     <div class="rail" style="margin:10px 0 6px"><i id="bar"></i></div>
     <p class="qtext" id="qtext"></p>
     <div class="opts" id="opts"></div>
@@ -90,25 +121,55 @@ h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.4rem, 4vw
     </div>
   </section>
 
+  <section class="panel" id="cards" hidden>
+    <div class="meta"><span id="ccounter"></span><span id="ctheme"></span><span id="cleft"></span></div>
+    <div class="rail" style="margin:10px 0 14px"><i id="cbar"></i></div>
+    <div class="fc" id="fc"><div class="inner"><div class="face front"><div class="q" id="cq"></div><div class="hint">Clique pour retourner</div></div><div class="face back"><div class="a" id="ca"></div><div class="e" id="ce"></div></div></div></div>
+    <div class="actions">
+      <button class="btn ghost" id="cquit">Arrêter</button>
+      <span><button class="btn ghost" id="cagain">À revoir</button> <button class="btn" id="cknew">Je savais</button></span>
+    </div>
+  </section>
+
   <section class="panel score" id="result" hidden>
     <div class="eyebrow">Résultat</div>
     <div class="big" id="scoreBig"></div>
     <p class="verdict" id="verdict"></p>
     <p class="sub" id="scoreSub"></p>
-    <div class="modes" style="justify-content:center">
+    <div id="newbadges"></div>
+    <div class="modes" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
       <button class="btn" id="retryWrong" hidden>Rejouer mes erreurs</button>
-      <button class="btn ghost" id="backHome">Retour aux thèmes</button>
+      <button class="btn ghost" id="backHome">Retour aux modes</button>
     </div>
     <div class="review" id="review"></div>
   </section>
 </div>
 <script>
+const COURSE = "gestion-budgetaire";
 const BANK = [{"t":"Pourquoi les coûts partiels","q":"Quel est le reproche principal fait aux coûts complets ?","o":["Ils ignorent le chiffre d'affaires","L'affectation des charges indirectes est discutable et arbitraire","Ils ne donnent pas de coût de revient","Ils sont trop rapides"],"a":1,"e":"L'unité d'œuvre passe encore, l'assiette de frais est arbitraire.","s":"Synthèse p.2"},{"t":"Pourquoi les coûts partiels","q":"Pour quel horizon les coûts partiels sont-ils adaptés ?","o":["Long terme","Court terme : sous-traiter, abandonner un produit, ajuster un prix","Fixer un prix de vente qui couvre tout","Les comptes annuels"],"a":1,"e":"Fixer un prix qui couvre tout relève des coûts complets.","s":"Synthèse p.2 et p.15"},{"t":"Pourquoi les coûts partiels","q":"Quelle nouvelle lecture des charges apportent les coûts partiels ?","o":["Directes / indirectes uniquement","Variables / fixes, et plus seulement directes / indirectes","Fixes / exceptionnelles","Internes / externes"],"a":1,"e":"Chaque charge porte deux étiquettes : variable ou fixe, directe ou indirecte.","s":"Synthèse p.2-3"},{"t":"La grille des charges","q":"Le salaire du directeur de production du produit A est une charge :","o":["Variable directe","Fixe directe","Fixe indirecte","Variable indirecte"],"a":1,"e":"Elle est constante et rattachée sans ambiguïté à un produit.","s":"Synthèse p.3"},{"t":"La grille des charges","q":"Le salaire du DG est une charge :","o":["Fixe directe","Fixe indirecte","Variable directe","Variable indirecte"],"a":1,"e":"Il travaille pour tous les produits.","s":"Synthèse p.3 et p.16"},{"t":"La grille des charges","q":"L'énergie partagée entre les produits est une charge :","o":["Variable indirecte","Fixe directe","Variable directe","Fixe indirecte"],"a":0,"e":"Elle bouge avec l'activité mais est commune à tous.","s":"Synthèse p.3"},{"t":"La grille des charges","q":"Les matières premières et une commission par vente sont des charges :","o":["Fixes indirectes","Variables directes","Fixes directes","Variables indirectes"],"a":1,"e":"Elles varient avec l'activité et se rattachent à un produit.","s":"Synthèse p.3"},{"t":"La grille des charges","q":"Dans le compte de résultat différentiel, de quoi part-on ?","o":["Du coût de revient","Du chiffre d'affaires","Des charges fixes","Du résultat"],"a":1,"e":"On retire seulement les coûts qu'on sait imputer, pour obtenir une marge par produit et un résultat global.","s":"Synthèse p.4"},{"t":"Coûts variables","q":"Comment se calcule la marge sur coûts variables (MCV) ?","o":["CA − coûts fixes","CA − coûts variables","CA − coûts directs","CA − coût de revient"],"a":1,"e":"Puis MCV totale − coûts fixes en bloc = résultat global.","s":"Synthèse p.6"},{"t":"Coûts variables","q":"Un produit a une MCV positive : que fait-on ?","o":["On l'abandonne","On le garde : il aide à payer les charges fixes","On augmente son prix","On le sous-traite"],"a":1,"e":"MCV ≤ 0 → abandon à court terme.","s":"Synthèse p.6"},{"t":"Coûts variables","q":"Dans l'exemple CASSIS, quelle est la MCV de la chaise B ?","o":["−8 000 €","+22 500 €","+60 000 €","+12 000 €"],"a":1,"e":"B perd 8 000 € en coûts complets mais rapporte 22 500 € de marge ; sans elle, A seule (60 000) ne couvre pas 70 500 € de CF.","s":"Synthèse p.7"},{"t":"Coûts variables","q":"Dans le cas BASALT, pourquoi garde-t-on la République tchèque ?","o":["Son CA est le plus élevé","Sa MCV est positive (+31 500 €) ; son déficit venait d'une répartition contestable des CF","Elle a le plus de séjours","Le résultat global augmente"],"a":1,"e":"Résultat global inchangé : 58 200 €.","s":"Synthèse p.8"},{"t":"Coûts variables","q":"Quelle limite de la méthode des coûts variables est citée ?","o":["Elle ne donne plus de résultat par produit, seulement global","Elle ignore le CA","Elle est réservée au long terme","Elle impute les charges fixes"],"a":0,"e":"Évaluer les charges variables indirectes demande aussi de l'expertise.","s":"Synthèse p.6"},{"t":"Coûts spécifiques","q":"Le coût spécifique d'un produit, c'est :","o":["Ses coûts variables seuls","Ses coûts variables + ses coûts fixes directs","Tous ses coûts","Ses coûts fixes indirects"],"a":1,"e":"CA − CV = MCV ; MCV − CF directes = MCS.","s":"Synthèse p.9-10"},{"t":"Coûts spécifiques","q":"Une MCS négative conduit à :","o":["Garder le produit","Restructurer (réduire les CF directes) ou abandonner","Augmenter la production","Répartir les CF communes"],"a":1,"e":"Les charges fixes directes disparaissent avec le produit.","s":"Synthèse p.10"},{"t":"Coûts spécifiques","q":"Dans le cas DELCOURT, quelle est la MCS du modèle ALBER ?","o":["+275 000 €","−40 550 €","+118 000 €","+31 750 €"],"a":1,"e":"MCV +275 000 − CF directes 315 550 = −40 550 € : restructurer ALBER ou l'abandonner.","s":"Synthèse p.11"},{"t":"Coûts spécifiques","q":"Dans DELCOURT, le résultat global de l'entreprise est :","o":["+77 450 €","+31 750 €","+118 000 €","−40 550 €"],"a":1,"e":"MCS totale 77 450 − CF communes 45 700 = 31 750 €.","s":"Synthèse p.11"},{"t":"Coûts directs","q":"Dans la méthode des coûts directs, on impute :","o":["Seulement les coûts variables","Tout ce qui est direct (variable ou fixe), rien d'indirect","Tout ce qui est fixe","Les coûts indirects"],"a":1,"e":"CA − coûts directs = MCD ; MCD − coûts indirects (en bloc) = résultat global.","s":"Synthèse p.12-13"},{"t":"Coûts directs","q":"Quand la méthode des coûts directs est-elle idéale ?","o":["Quand il n'y a pas de charges fixes","Quand les charges indirectes pèsent lourd et qu'on ne sait pas les répartir","Quand tous les coûts sont variables","Pour fixer un prix"],"a":1,"e":"Exemple BAEGA : MCD +30 000 et +25 000, résultat +12 000 €.","s":"Synthèse p.13"},{"t":"Coûts directs","q":"Dans l'exemple BAEGA, la MCD de la montre A est :","o":["+25 000 €","+30 000 €","+55 000 €","+12 000 €"],"a":1,"e":"120 000 − 90 000 = 30 000 € ; montre B : 112 500 − 87 500 = 25 000 €.","s":"Synthèse p.13"},{"t":"Comparatif et réflexes","q":"Quelle marge décide dans chacune des trois méthodes ?","o":["MCV, MCS, MCD","MCD, MCV, MCS","Résultat, MCV, MCS","MCS, MCD, MCV"],"a":0,"e":"Coûts variables → MCV ; coûts spécifiques → MCS ; coûts directs → MCD.","s":"Synthèse p.14"},{"t":"Comparatif et réflexes","q":"Quand privilégier la méthode des coûts spécifiques ?","o":["Quand on ne sait rien répartir","Quand on sait identifier des charges fixes directes par produit","Quand il n'y a que des charges variables","Pour les comptes annuels"],"a":1,"e":"Coûts variables : beaucoup de CF indirectes impossibles à répartir ; coûts directs : charges indirectes lourdes.","s":"Synthèse p.14"},{"t":"Comparatif et réflexes","q":"Entre coûts complets, variables, spécifiques et directs, le résultat global…","o":["Change selon la méthode","Ne change jamais, seule la ventilation change","Est toujours nul","Est le plus élevé en coûts directs"],"a":1,"e":"Même total : 12 000 € chez CASSIS, COMM1 et BAEGA.","s":"Synthèse p.15"},{"t":"Comparatif et réflexes","q":"Un texte donne le « coût de revient » de chaque produit. De quelle méthode s'agit-il ?","o":["Coûts variables","Coûts complets","Coûts spécifiques","Coûts directs"],"a":1,"e":"Pour les coûts partiels il faut la répartition variable / fixe ou direct / indirect.","s":"Synthèse p.15-16"},{"t":"Comparatif et réflexes","q":"« Charges fixes globales, non imputables, communes » désigne des charges :","o":["Directes","Indirectes","Variables","De production"],"a":1,"e":"« Charges fixes de production du modèle X » → directes.","s":"Synthèse p.15"},{"t":"Comparatif et réflexes","q":"Un produit a une MCV de +5 000 € mais un résultat de −3 000 € en coûts complets. On le supprime ?","o":["Oui, il est déficitaire","Non : sa marge couvre une partie des CF communes, le supprimer aggraverait le résultat","Oui, si son CA est faible","On ne peut pas savoir"],"a":1,"e":"Une marge positive = on garde.","s":"Synthèse p.16"},{"t":"Comparatif et réflexes","q":"Quel est le module suivant annoncé ?","o":["Les coûts complets","Seuil de rentabilité et risque d'exploitation","Le budget de trésorerie","Les écarts sur charges"],"a":1,"e":"Fin de la fiche : « Module suivant : seuil de rentabilité et risque d'exploitation ».","s":"Synthèse p.17"}];
 const THEMES = [...new Set(BANK.map(q => q.t))];
 const $ = id => document.getElementById(id);
-let selected = new Set(THEMES), queue = [], idx = 0, score = 0, wrong = [], mode = "all";
-const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+const ls = { get(k){ try { return JSON.parse(localStorage.getItem("b3:" + COURSE + ":" + k)); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem("b3:" + COURSE + ":" + k, JSON.stringify(v)); } catch(e){} } };
+const BADGES = [
+  ["first", "Premier pas", "Terminer une série"],
+  ["streak5", "En feu", "5 bonnes réponses d'affilée"],
+  ["streak10", "Inarrêtable", "10 bonnes réponses d'affilée"],
+  ["perfect", "Sans faute", "Un examen blanc à 20/20"],
+  ["chrono", "Éclair", "Un chrono à 12/15 ou plus"],
+  ["cards", "Mémoire vive", "Une session de flashcards terminée"],
+  ["master", "Maître du cours", "80 % de maîtrise sur tous les thèmes"],
+];
+const PRAISE = ["Exact.", "Bien joué.", "Tu gères.", "Propre.", "Oui !", "Nickel.", "C'est ça."];
+const NOPE = ["Pas tout à fait.", "Raté, mais tu la retiendras.", "Presque.", "Non, regarde bien :"];
+let selected = new Set(THEMES), queue = [], idx = 0, score = 0, wrong = [], mode = "all", streak = 0, maxStreak = 0, pts = 0, tStart = 0, tick = null, tLeft = 0;
+let stats = ls.get("stats") || {}, xp = ls.get("xp") || 0, earned = new Set(ls.get("badges") || []), gained = [];
 
+function level(x){ return Math.floor(Math.sqrt(x / 60)) + 1; }
+function renderHud(){
+  const l = level(xp), lo = (l - 1) ** 2 * 60, hi = l ** 2 * 60;
+  $("lvl").textContent = "Niveau " + l; $("xptxt").textContent = xp + " XP";
+  $("xpfill").style.width = Math.round((xp - lo) / (hi - lo) * 100) + "%";
+}
 function renderChips(){
   $("chips").innerHTML = "";
   THEMES.forEach(t => {
@@ -119,20 +180,31 @@ function renderChips(){
     b.onclick = () => { selected.has(t) ? selected.delete(t) : selected.add(t); if (!selected.size) selected.add(t); renderChips(); };
     $("chips").appendChild(b);
   });
-  const best = ls.get("best-exam");
-  $("best").hidden = !best; if (best) $("best").textContent = `Meilleur examen blanc : ${best}/20`;
+  const m = $("mastery"); m.innerHTML = "";
+  THEMES.forEach(t => {
+    const s = stats[t] || { ok: 0, n: 0 }; const p = s.n ? Math.round(s.ok / s.n * 100) : 0;
+    const d = document.createElement("div"); d.className = "mrow";
+    d.innerHTML = `<span></span><span class="pct">${s.n ? p + " % · " + s.n + " rép." : "pas encore joué"}</span><div class="bar"><i style="width:${p}%"></i></div>`;
+    d.firstChild.textContent = t; m.appendChild(d);
+  });
+  const bd = $("badges"); bd.innerHTML = "";
+  BADGES.forEach(([id, name, how]) => { const s = document.createElement("span"); s.className = "badge" + (earned.has(id) ? "" : " locked"); s.title = how; s.textContent = (earned.has(id) ? "🏅 " : "🔒 ") + name; bd.appendChild(s); });
+  renderHud();
 }
 function shuffle(a){ for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function pool(){ return BANK.filter(q => selected.has(q.t)); }
+function award(id){ if (!earned.has(id)) { earned.add(id); gained.push(id); ls.set("badges", [...earned]); } }
 function start(list, m){
-  mode = m; queue = list; idx = 0; score = 0; wrong = [];
-  $("home").hidden = true; $("result").hidden = true; $("quiz").hidden = false;
+  mode = m; queue = list; idx = 0; score = 0; wrong = []; streak = 0; maxStreak = 0; pts = 0; gained = [];
+  $("home").hidden = true; $("result").hidden = true; $("cards").hidden = true; $("quiz").hidden = false;
+  $("timer").hidden = mode !== "chrono";
   show();
 }
 function show(){
   const q = queue[idx];
   $("counter").textContent = `Question ${idx + 1} / ${queue.length}`;
   $("theme").textContent = q.t;
-  $("live").textContent = `Score ${score}`;
+  $("streak").textContent = streak >= 2 ? `🔥 ×${streak}` : "";
   $("bar").style.width = (idx / queue.length * 100) + "%";
   $("qtext").textContent = q.q;
   $("fb").hidden = true; $("next").hidden = true;
@@ -143,28 +215,45 @@ function show(){
     b.onclick = () => answer(i);
     opts.appendChild(b);
   });
+  tStart = Date.now();
+  if (mode === "chrono") { tLeft = 20; $("timer").textContent = tLeft + " s"; $("timer").className = "timer"; clearInterval(tick); tick = setInterval(() => { tLeft--; $("timer").textContent = tLeft + " s"; if (tLeft <= 5) $("timer").className = "timer low"; if (tLeft <= 0) { clearInterval(tick); answer(-1); } }, 1000); }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 function answer(i){
+  clearInterval(tick);
   const q = queue[idx]; const btns = [...$("opts").children];
   btns.forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add("ok"); else if (j === i) b.classList.add("ko"); });
-  const good = i === q.a; if (good) score++; else wrong.push(q);
+  const good = i === q.a; const secs = (Date.now() - tStart) / 1000;
+  const s = stats[q.t] || { ok: 0, n: 0 }; s.n++; if (good) s.ok++; stats[q.t] = s; ls.set("stats", stats);
+  let p = 0;
+  if (good) { score++; streak++; maxStreak = Math.max(maxStreak, streak); p = 10 + Math.min(streak - 1, 5) * 2 + (mode === "chrono" && secs < 8 ? 5 : 0); }
+  else { streak = 0; wrong.push(q); }
+  pts += p; xp += p; ls.set("xp", xp); renderHud();
+  if (streak === 5) award("streak5"); if (streak === 10) award("streak10");
+  $("streak").textContent = streak >= 2 ? `🔥 ×${streak}` : ""; $("streak").className = "streak" + (streak >= 3 ? " hot" : "");
   const fb = $("fb"); fb.hidden = false; fb.className = "feedback " + (good ? "ok" : "ko");
-  fb.innerHTML = `<strong>${good ? "Bonne réponse." : "Non, la bonne réponse est " + "ABCD"[q.a] + "."}</strong> <span></span><br><span class="slide">Source : ${q.s}</span>`;
-  fb.querySelector("span").textContent = q.e;
-  $("live").textContent = `Score ${score}`;
+  const head = good ? PRAISE[Math.floor(Math.random() * PRAISE.length)] : (i < 0 ? "Temps écoulé ! La bonne réponse était " + "ABCD"[q.a] + "." : NOPE[Math.floor(Math.random() * NOPE.length)] + " La bonne réponse est " + "ABCD"[q.a] + ".");
+  fb.innerHTML = `<span class="pts">${good ? "+" + p + " XP" : ""}</span><strong>${head}</strong> <span></span><br><span class="slide">Source : ${q.s}</span>`;
+  fb.querySelector("span:not(.pts)").textContent = q.e;
+  if (good && streak >= 3) burst(12);
   $("next").hidden = false; $("next").textContent = idx + 1 < queue.length ? "Question suivante" : "Voir le résultat";
   $("next").focus();
 }
 $("next").onclick = () => { idx++; idx < queue.length ? show() : finish(); };
-$("quit").onclick = () => { $("quiz").hidden = true; $("home").hidden = false; };
+$("quit").onclick = () => { clearInterval(tick); $("quiz").hidden = true; $("home").hidden = false; renderChips(); };
 function finish(){
   $("quiz").hidden = true; $("result").hidden = false;
   const n = queue.length, pct = Math.round(score / n * 100);
+  award("first");
+  if (mode === "exam" && score === 20) award("perfect");
+  if (mode === "chrono" && score >= 12) award("chrono");
+  if (THEMES.every(t => stats[t] && stats[t].n >= 5 && stats[t].ok / stats[t].n >= .8)) award("master");
   $("scoreBig").textContent = `${score} / ${n}`;
-  $("verdict").textContent = pct >= 90 ? "Tu es prêt pour l'examen." : pct >= 70 ? "Solide. Revois les thèmes en rouge ci-dessous." : pct >= 50 ? "Ça passe, mais relis les parties citées avant l'examen." : "Reprends le cours thème par thème, puis rejoue tes erreurs.";
-  $("scoreSub").textContent = `${pct} % de bonnes réponses · ${wrong.length} erreur${wrong.length > 1 ? "s" : ""}`;
-  if (mode === "exam") { const b = Number(ls.get("best-exam") || 0); if (score > b) ls.set("best-exam", String(score)); }
+  $("verdict").textContent = pct === 100 ? "Parfait. Rien à redire." : pct >= 90 ? "Tu es prêt pour l'examen." : pct >= 70 ? "Solide. Revois les thèmes en rouge ci-dessous." : pct >= 50 ? "Ça passe, mais relis les parties citées avant l'examen." : "Reprends la synthèse thème par thème, puis rejoue tes erreurs.";
+  $("scoreSub").textContent = `${pct} % · +${pts} XP · meilleure série ${maxStreak} · ${wrong.length} erreur${wrong.length > 1 ? "s" : ""}`;
+  const nb = $("newbadges"); nb.innerHTML = "";
+  gained.forEach(id => { const b = BADGES.find(x => x[0] === id); const s = document.createElement("span"); s.className = "newbadge"; s.textContent = "🏅 Nouveau badge : " + b[1]; nb.appendChild(s); });
+  if (pct >= 70 || gained.length) burst(pct >= 90 ? 120 : 60);
   $("retryWrong").hidden = !wrong.length;
   const rv = $("review"); rv.innerHTML = "";
   queue.forEach((q, k) => {
@@ -177,8 +266,40 @@ function finish(){
 }
 $("retryWrong").onclick = () => start(shuffle([...wrong]), "retry");
 $("backHome").onclick = () => { $("result").hidden = true; $("home").hidden = false; renderChips(); };
-$("startAll").onclick = () => start(BANK.filter(q => selected.has(q.t)), "all");
-$("startExam").onclick = () => start(shuffle(BANK.filter(q => selected.has(q.t))).slice(0, 20), "exam");
+$("startAll").onclick = () => start(pool(), "all");
+$("startExam").onclick = () => start(shuffle(pool()).slice(0, 20), "exam");
+$("startChrono").onclick = () => start(shuffle(pool()).slice(0, 15), "chrono");
+
+/* Flashcards */
+let cq = [], ci = 0, cagain = [], cround = 1, cflipped = false;
+function cstart(list){ cq = list; ci = 0; cagain = []; cflipped = false; $("home").hidden = true; $("cards").hidden = false; cshow(); }
+function cshow(){
+  const q = cq[ci]; $("fc").classList.remove("flipped"); cflipped = false;
+  $("ccounter").textContent = `Carte ${ci + 1} / ${cq.length}`; $("ctheme").textContent = q.t; $("cleft").textContent = cround > 1 ? `Tour ${cround}` : "";
+  $("cbar").style.width = (ci / cq.length * 100) + "%";
+  $("cq").textContent = q.q; $("ca").textContent = q.o[q.a]; $("ce").textContent = q.e;
+}
+$("fc").onclick = () => { cflipped = !cflipped; $("fc").classList.toggle("flipped", cflipped); };
+function cnext(knew){
+  if (!knew) cagain.push(cq[ci]); else { xp += 3; ls.set("xp", xp); renderHud(); }
+  ci++;
+  if (ci < cq.length) cshow();
+  else if (cagain.length) { cq = shuffle(cagain); cagain = []; ci = 0; cround++; cshow(); }
+  else { award("cards"); burst(60); $("cards").hidden = true; $("home").hidden = false; renderChips(); alertDone(); }
+}
+function alertDone(){ const h = $("home"); const p = document.createElement("p"); p.className = "sub"; p.textContent = "Flashcards terminées, toutes les cartes sont connues. Belle mémoire."; h.prepend(p); setTimeout(() => p.remove(), 6000); }
+$("cknew").onclick = () => cnext(true); $("cagain").onclick = () => cnext(false);
+$("cquit").onclick = () => { $("cards").hidden = true; $("home").hidden = false; renderChips(); };
+$("startCards").onclick = () => { cround = 1; cstart(shuffle(pool())); };
+
+/* Confetti */
+function burst(n){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = $("confetti"); c.hidden = false; c.width = innerWidth; c.height = innerHeight; const ctx = c.getContext("2d");
+  const cols = ["#2f7d5b", "#e8694f", "#f2c14e", "#5cc08f", "#ffffff"];
+  const ps = Array.from({ length: n }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 200, y: innerHeight * .35, vx: (Math.random() - .5) * 12, vy: -Math.random() * 10 - 4, r: 4 + Math.random() * 5, c: cols[Math.floor(Math.random() * cols.length)], a: Math.random() * 6 }));
+  let f = 0; (function step(){ ctx.clearRect(0, 0, c.width, c.height); ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .35; p.a += .2; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * .6); ctx.restore(); }); if (++f < 70) requestAnimationFrame(step); else { ctx.clearRect(0, 0, c.width, c.height); c.hidden = true; } })();
+}
 renderChips();
 </script>
 </body>
